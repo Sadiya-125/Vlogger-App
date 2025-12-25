@@ -106,8 +106,9 @@ model Board {
   coverImage     String?
   autoGenCover   Boolean          @default(false) // Auto-generate from first 3 pins
   hashtags       String[] // Array of hashtags
-  userId         String
+  userId         String // Owner of the board
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isArchived     Boolean          @default(false) // Archive status
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
@@ -257,6 +258,9 @@ enum BoardActivityType {
   COMMENT_ADDED
   SETTINGS_UPDATED
   COVER_CHANGED
+  OWNERSHIP_TRANSFERRED
+  BOARD_ARCHIVED
+  BOARD_RESTORED
 }
 
 model BoardActivityLog {

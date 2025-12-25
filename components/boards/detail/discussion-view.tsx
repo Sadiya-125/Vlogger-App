@@ -146,7 +146,7 @@ function CommentItem({
           <Link href={`/profile/${comment.user.username}`}>
             <Avatar className="h-10 w-10">
               <AvatarImage src={comment.user.imageUrl || undefined} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+              <AvatarFallback className="bg-linear-to-br from-primary to-secondary text-white">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -194,7 +194,7 @@ function CommentItem({
                 </div>
               )}
 
-              <p className="text-sm whitespace-pre-wrap break-words">
+              <p className="text-sm whitespace-pre-wrap wrap-break-word">
                 {comment.content}
               </p>
 

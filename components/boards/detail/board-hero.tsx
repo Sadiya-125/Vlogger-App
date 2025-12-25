@@ -282,8 +282,13 @@ export function BoardHero({
                   </Badge>
 
                   {board.tripCategory && (
-                    <Badge className="px-3 py-1 bg-black/60 backdrop-blur-sm border-white/30 text-white shadow-lg">
-                      {board.tripCategory.replace("_", " ")}
+                    <Badge
+                      className={cn(
+                        "px-3 py-1.5 text-sm font-semibold border bg-black/60 backdrop-blur-sm border-white/30 text-white shadow-lg"
+                      )}
+                    >
+                      {board.tripCategory.charAt(0) +
+                        board.tripCategory.slice(1).toLowerCase()}
                     </Badge>
                   )}
 

@@ -140,7 +140,7 @@ export function InfiniteFeed({ initialPins = [] }: InfiniteFeedProps) {
           <MasonryGrid pins={pins} />
 
           {/* Loading Indicator */}
-          {isLoading && page === 1 && <PinGridSkeleton count={12} />}
+          {isLoading && page === 1 && <PinGridSkeleton count={4} />}
 
           {/* Infinite Scroll Trigger */}
           {hasMore && (
@@ -148,7 +148,7 @@ export function InfiniteFeed({ initialPins = [] }: InfiniteFeedProps) {
               {isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span className="text-sm">Loading More Pins...</span>
+                  <span className="text-md">Loading More Pins...</span>
                 </div>
               )}
             </div>

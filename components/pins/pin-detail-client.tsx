@@ -454,7 +454,7 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm">
-                  Best time: {pin.bestTimeToVisit}
+                  Best Time: {pin.bestTimeToVisit}
                 </span>
               </div>
             )}

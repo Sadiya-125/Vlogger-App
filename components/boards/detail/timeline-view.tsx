@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -198,7 +199,7 @@ function DayColumn({
   const [localTitle, setLocalTitle] = useState(day.title);
   const [localNotes, setLocalNotes] = useState(day.notes);
 
-  const { setNodeRef } = useSortable({ id: day.id });
+  const { setNodeRef, isOver } = useDroppable({ id: day.id });
 
   const handleSaveTitle = () => {
     onUpdateDay({ title: localTitle });
@@ -285,7 +286,13 @@ function DayColumn({
         )}
       </CardHeader>
 
-      <CardContent ref={setNodeRef} className="space-y-2 min-h-50">
+      <CardContent
+        ref={setNodeRef}
+        className={cn(
+          "space-y-2 min-h-50 transition-colors",
+          isOver && "bg-primary/10 ring-2 ring-primary"
+        )}
+      >
         <SortableContext
           items={day.pins.map((p) => p.id)}
           strategy={verticalListSortingStrategy}
@@ -502,6 +509,66 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
     if (sourceDayIndex === -1) return;
 
     const sourceDay = days[sourceDayIndex];
+    const draggedPin = sourceDay.pins[activePinIndex];
+
+    // Check if dropped on a day column (cross-day move)
+    const targetDay = days.find((d) => d.id === over.id);
+
+    if (targetDay && targetDay.id !== sourceDay.id) {
+      // Moving to a different day
+      const newDays = days.map((day) => {
+        if (day.id === sourceDay.id) {
+          // Remove from source day
+          return {
+            ...day,
+            pins: day.pins.filter((p) => p.id !== draggedPin.id),
+          };
+        } else if (day.id === targetDay.id) {
+          // Add to target day at the end
+          return {
+            ...day,
+            pins: [...day.pins, draggedPin],
+          };
+        }
+        return day;
+      });
+
+      // Optimistically update UI
+      setDays(newDays);
+
+      // Persist to API - delete from source and add to target
+      try {
+        // Delete from source day
+        await fetch(
+          `/api/boards/${board.id}/timeline/days/${sourceDay.id}/pins/${draggedPin.assignmentId}`,
+          { method: "DELETE" }
+        );
+
+        // Add to target day
+        const addResponse = await fetch(
+          `/api/boards/${board.id}/timeline/days/${targetDay.id}/pins`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pinId: draggedPin.id }),
+          }
+        );
+
+        if (addResponse.ok) {
+          toast.success("Pin moved to another day");
+          fetchTimeline(); // Refresh to get the new assignment ID
+        } else {
+          throw new Error("Failed to move pin");
+        }
+      } catch (error) {
+        console.error("Failed to move pin between days:", error);
+        toast.error("Failed to move pin");
+        fetchTimeline();
+      }
+      return;
+    }
+
+    // Check if reordering within same day
     const overPinIndex = sourceDay.pins.findIndex((p) => p.id === over.id);
 
     if (overPinIndex !== -1 && activePinIndex !== overPinIndex) {
@@ -542,31 +609,6 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
         // Revert optimistic update on failure
         fetchTimeline();
       }
-    }
-  };
-
-  const handleAddPinToDay = async (dayId: string, pinId: string) => {
-    try {
-      const response = await fetch(
-        `/api/boards/${board.id}/timeline/days/${dayId}/pins`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pinId }),
-        }
-      );
-
-      if (response.ok) {
-        toast.success("Pin added to day");
-        fetchTimeline(); // Refresh to show the new pin
-      } else if (response.status === 409) {
-        toast.info("Pin is already in this day");
-      } else {
-        throw new Error("Failed to add pin");
-      }
-    } catch (error) {
-      console.error("Failed to add pin to day:", error);
-      toast.error("Failed to add pin");
     }
   };
 

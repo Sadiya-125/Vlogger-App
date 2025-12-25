@@ -86,7 +86,7 @@ export function AddToBoardModal({
       });
 
       if (response.ok) {
-        toast.success(`Added to board!`);
+        toast.success(`Added to Board!`);
         router.refresh();
         // Update local state to show checkmark
         setTimeout(() => {

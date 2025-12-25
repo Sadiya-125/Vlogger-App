@@ -53,7 +53,8 @@ export function BoardActivityView({ activities }: BoardActivityViewProps) {
         {activities.map((activity: any) => {
           const displayName = activity.user.firstName || activity.user.username;
           const icon = activityIcons[activity.activityType] || "📝";
-          const label = activityLabels[activity.activityType] || activity.activityType;
+          const label =
+            activityLabels[activity.activityType] || activity.activityType;
 
           return (
             <div
@@ -61,7 +62,7 @@ export function BoardActivityView({ activities }: BoardActivityViewProps) {
               className="flex items-start gap-4 p-4 rounded-lg border border-border/40 bg-card hover:bg-accent/5 transition-colors"
             >
               {/* User Avatar */}
-              <div className="relative flex-shrink-0">
+              <div className="relative shrink-0">
                 {activity.user.imageUrl ? (
                   <Image
                     src={activity.user.imageUrl}
@@ -71,13 +72,15 @@ export function BoardActivityView({ activities }: BoardActivityViewProps) {
                     className="rounded-full"
                   />
                 ) : (
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center">
                     <span className="text-sm font-bold text-white">
                       {displayName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
-                <span className="absolute -bottom-1 -right-1 text-lg">{icon}</span>
+                <span className="absolute -bottom-1 -right-1 text-lg">
+                  {icon}
+                </span>
               </div>
 
               {/* Activity Content */}
@@ -87,7 +90,9 @@ export function BoardActivityView({ activities }: BoardActivityViewProps) {
                   <span className="text-muted-foreground">{label}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(activity.createdAt), {
+                    addSuffix: true,
+                  })}
                 </p>
               </div>
             </div>

@@ -7,6 +7,7 @@ import { BoardMapView } from "./board-map-view";
 import { BoardActivityView } from "./board-activity-view";
 import { TimelineView } from "./timeline-view";
 import { DiscussionView } from "./discussion-view";
+import { AnalyticsView } from "./analytics-view";
 import {
   MapPin,
   Map,
@@ -14,6 +15,7 @@ import {
   MessageSquare,
   LayoutGrid,
   Calendar,
+  BarChart3,
 } from "lucide-react";
 
 interface BoardTabsProps {
@@ -91,6 +93,14 @@ export function BoardTabs({
                 ({board._count.comments})
               </span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="analytics"
+              className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -129,6 +139,10 @@ export function BoardTabs({
             isOwner={isOwner}
             currentUserId={currentUserId}
           />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-0">
+          <AnalyticsView board={board} />
         </TabsContent>
       </Tabs>
     </div>

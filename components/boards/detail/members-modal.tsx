@@ -331,7 +331,7 @@ export function MembersModal({
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : members.length > 0 ? (
-            <ScrollArea className="h-[400px] pr-4">
+            <ScrollArea className="h-100 pr-4">
               <div className="space-y-3">
                 {members.map((member) => {
                   const roleData =
@@ -350,7 +350,7 @@ export function MembersModal({
                       {/* Avatar */}
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={member.user.imageUrl || undefined} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                        <AvatarFallback className="bg-linear-to-br from-primary to-secondary text-white">
                           {displayName.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>

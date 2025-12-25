@@ -107,17 +107,17 @@ export function TimelinePinSelectorModal({
       );
 
       if (response.ok) {
-        toast.success(`"${pinTitle}" added to day!`);
+        toast.success(`"${pinTitle}" Added to Day!`);
         onPinAdded();
         onOpenChange(false);
       } else if (response.status === 409) {
-        toast.info("This pin is already in this day");
+        toast.info("This Pin is Already in This Day");
       } else {
-        throw new Error("Failed to add pin");
+        throw new Error("Failed to Add Pin");
       }
     } catch (error) {
-      console.error("Failed to add pin to day:", error);
-      toast.error("Failed to add pin to day");
+      console.error("Failed to Add Pin to Day:", error);
+      toast.error("Failed to Add Pin to Day");
     } finally {
       setAddingPinId(null);
     }
@@ -151,8 +151,8 @@ export function TimelinePinSelectorModal({
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : pins.length > 0 ? (
-            <ScrollArea className="h-125 pr-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ScrollArea className="max-h-[60vh] rounded-md scroll-smooth overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1">
                 {pins.map((pin) => {
                   const isAdding = addingPinId === pin.id;
 
@@ -172,7 +172,7 @@ export function TimelinePinSelectorModal({
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <MapPinIcon className="h-12 w-12 text-muted-foreground/30" />
+                            <MapPinIcon className="h-12 w-12 text-muted-foreground/30 shrink-0" />
                           </div>
                         )}
 
@@ -181,7 +181,6 @@ export function TimelinePinSelectorModal({
                           <Button
                             onClick={() => handleAddPinToDay(pin.id, pin.title)}
                             disabled={isAdding}
-                            size="sm"
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             {isAdding ? (
@@ -200,7 +199,7 @@ export function TimelinePinSelectorModal({
                           {pin.title}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                          <MapPinIcon className="h-3 w-3" />
+                          <MapPinIcon className="h-3 w-3 shrink-0" />
                           <span className="line-clamp-1">{pin.location}</span>
                         </div>
                         {pin.category && (
@@ -216,7 +215,7 @@ export function TimelinePinSelectorModal({
             </ScrollArea>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <MapPinIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
+              <MapPinIcon className="h-12 w-12 text-muted-foreground/50 mb-4 shrink-0" />
               <h3 className="font-semibold mb-2">
                 {searchQuery ? "No Pins Found" : "No Pins in This Board"}
               </h3>

@@ -2,6 +2,53 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// GET /api/boards/[boardId]/pins - Get all pins in a board
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
+  try {
+    const { boardId } = await params;
+    const { searchParams } = new URL(req.url);
+    const q = searchParams.get('q');
+
+    // Build where clause for pin search
+    const pinWhereClause: any = {};
+    if (q) {
+      pinWhereClause.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
+        { location: { contains: q, mode: 'insensitive' } },
+        { category: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    // Fetch board pins with proper filtering
+    const boardPins = await prisma.boardPinRelation.findMany({
+      where: {
+        boardId,
+        pin: pinWhereClause.OR ? pinWhereClause : undefined,
+      },
+      include: {
+        pin: {
+          include: {
+            images: true,
+          },
+        },
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    // Map to pin objects
+    const pins = boardPins.map(bp => bp.pin);
+
+    return NextResponse.json(pins);
+  } catch (error) {
+    console.error('[BOARD_PINS_GET]', error);
+    return new NextResponse('Internal Error', { status: 500 });
+  }
+}
+
 // POST /api/boards/[boardId]/pins - Add pin to board
 export async function POST(
   req: Request,

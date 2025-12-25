@@ -91,7 +91,7 @@ function PinCard({ pin }: { pin: Pin }) {
         setIsLiked(data.liked);
       }
     } catch (error) {
-      console.error("Failed to fetch like status:", error);
+      console.error("Failed to Fetch Like Status:", error);
     }
   };
 
@@ -103,7 +103,7 @@ function PinCard({ pin }: { pin: Pin }) {
         setIsSaved(data.saved);
       }
     } catch (error) {
-      console.error("Failed to fetch save status:", error);
+      console.error("Failed to Fetch Save Status:", error);
     }
   };
 
@@ -122,7 +122,7 @@ function PinCard({ pin }: { pin: Pin }) {
         setLikes((prev) => (data.liked ? prev + 1 : prev - 1));
       }
     } catch (error) {
-      console.error("Failed to like pin:", error);
+      console.error("Failed to Like Pin:", error);
     }
   };
 

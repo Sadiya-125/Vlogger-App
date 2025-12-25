@@ -81,6 +81,7 @@ export async function GET(req: Request) {
         where: {
           AND: [
             { visibility: "PUBLIC" },
+            { isArchived: false },
             {
               OR: [
                 { name: { contains: query, mode: "insensitive" } },

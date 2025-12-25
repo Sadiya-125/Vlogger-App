@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { TransferOwnershipModal } from "./transfer-ownership-modal";
+import { ArchiveBoardModal } from "./archive-board-modal";
 
 interface DangerZoneSettingsProps {
   board: any;
@@ -35,6 +37,8 @@ export function DangerZoneSettings({ board, isOwner }: DangerZoneSettingsProps) 
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
 
   const handleDeleteBoard = async () => {
     if (confirmText !== board.name) {
@@ -67,10 +71,6 @@ export function DangerZoneSettings({ board, isOwner }: DangerZoneSettingsProps) 
     toast.info("Feature coming soon");
   };
 
-  const handleArchiveBoard = async () => {
-    toast.info("Feature coming soon");
-  };
-
   return (
     <div className="p-6 md:p-8 space-y-8">
       {/* Header */}
@@ -100,7 +100,12 @@ export function DangerZoneSettings({ board, isOwner }: DangerZoneSettingsProps) 
                     Transfer this board to another user. You'll become a Co-Admin.
                   </p>
                 </div>
-                <Button variant="outline" size="sm" className="border-orange-500/30">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-orange-500/30"
+                  onClick={() => setTransferModalOpen(true)}
+                >
                   Transfer Board
                 </Button>
               </div>
@@ -170,8 +175,13 @@ export function DangerZoneSettings({ board, isOwner }: DangerZoneSettingsProps) 
                     Hide this board from public view. You can restore it later.
                   </p>
                 </div>
-                <Button variant="outline" size="sm" className="border-orange-500/30">
-                  Archive Board
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-orange-500/30"
+                  onClick={() => setArchiveModalOpen(true)}
+                >
+                  {board.isArchived ? "Restore Board" : "Archive Board"}
                 </Button>
               </div>
             </div>
@@ -260,6 +270,21 @@ export function DangerZoneSettings({ board, isOwner }: DangerZoneSettingsProps) 
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <TransferOwnershipModal
+        open={transferModalOpen}
+        onOpenChange={setTransferModalOpen}
+        boardId={board.id}
+        boardName={board.name}
+      />
+      <ArchiveBoardModal
+        open={archiveModalOpen}
+        onOpenChange={setArchiveModalOpen}
+        boardId={board.id}
+        boardName={board.name}
+        isArchived={board.isArchived}
+      />
     </div>
   );
 }
