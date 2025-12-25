@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill /F /PID 20784)",
+      "Bash(npx prisma:*)",
+      "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=yes)",
+      "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\")",
+      "Bash(\"c:\\\\Users\\\\Sadiya Maheen\\\\Desktop\\\\vlogger-app\\\\app\\\\api\\\\users\\\\[userId]\\\\follow\\\\route.ts\")"
+    ]
+  }
+}

@@ -1,0 +1,392 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  clerkId       String   @unique
+  email         String   @unique
+  username      String   @unique
+  firstName     String?
+  lastName      String?
+  imageUrl      String?
+  bio           String?
+  location      String?
+  interests     String[] // Array of interests
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  boards             Board[]
+  pins               Pin[]
+  comments           Comment[]
+  likes              Like[]
+  followers          Follow[]           @relation("UserFollowers")
+  following          Follow[]           @relation("UserFollowing")
+  boardFollows       BoardFollow[]
+  boardMembers       BoardMember[]
+  boardComments      BoardComment[]
+  boardLikes         BoardLike[]
+  boardActivities    BoardActivityLog[]
+  reports            Report[]
+  savedPins          SavedPin[]
+  savedBoards        SavedBoard[]
+
+  @@index([clerkId])
+  @@index([username])
+  @@index([email])
+}
+
+enum BoardCategory {
+  DREAM
+  PLANNING
+  COMPLETED
+}
+
+enum BoardVisibility {
+  PRIVATE
+  PUBLIC
+  SHARED
+}
+
+enum BoardLayoutMode {
+  MASONRY
+  GRID
+  TIMELINE
+  MAP
+}
+
+enum BoardThemeColor {
+  TRAVEL_BLUE
+  EXPLORER_TEAL
+  CORAL_ADVENTURE
+  GOLD_LUXURY
+  MINIMAL_SLATE
+}
+
+enum TripCategory {
+  BACKPACKING
+  LUXURY
+  SOLO
+  GROUP
+  COUPLES
+  NATURE
+  CITY
+  FOOD
+  FESTIVALS
+  HIDDEN_GEMS
+}
+
+enum BoardMemberRole {
+  OWNER
+  CO_ADMIN
+  CAN_ADD_PINS
+  CAN_COMMENT
+  VIEW_ONLY
+}
+
+model Board {
+  id             String           @id @default(cuid())
+  name           String
+  description    String?
+  subtitle       String? // Mood tagline
+  category       BoardCategory    @default(DREAM)
+  tripCategory   TripCategory?
+  visibility     BoardVisibility  @default(PRIVATE)
+  layoutMode     BoardLayoutMode  @default(MASONRY)
+  themeColor     BoardThemeColor  @default(TRAVEL_BLUE)
+  coverImage     String?
+  autoGenCover   Boolean          @default(false) // Auto-generate from first 3 pins
+  hashtags       String[] // Array of hashtags
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  // Stats
+  viewCount      Int              @default(0)
+
+  pins           BoardPinRelation[]
+  followers      BoardFollow[]
+  members        BoardMember[]
+  comments       BoardComment[]
+  likes          BoardLike[]
+  activities     BoardActivityLog[]
+  savedBy        SavedBoard[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([visibility])
+  @@index([tripCategory])
+  @@index([createdAt])
+  @@index([viewCount])
+}
+
+model BoardFollow {
+  id        String   @id @default(cuid())
+  userId    String
+  boardId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, boardId])
+  @@index([userId])
+  @@index([boardId])
+}
+
+model BoardMember {
+  id          String          @id @default(cuid())
+  userId      String
+  boardId     String
+  role        BoardMemberRole @default(VIEW_ONLY)
+  invitedBy   String? // User ID who invited
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board       Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([userId, boardId])
+  @@index([userId])
+  @@index([boardId])
+  @@index([role])
+}
+
+enum PinRelevance {
+  MUST_VISIT
+  MAYBE
+  BACKUP
+}
+
+model BoardPinRelation {
+  id          String        @id @default(cuid())
+  boardId     String
+  pinId       String
+  order       Int           @default(0) // For drag & drop ordering
+  relevance   PinRelevance? // User-defined relevance
+  boardNotes  String? // Notes specific to this board
+  board       Board         @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  pin         Pin           @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@unique([boardId, pinId])
+  @@index([boardId])
+  @@index([pinId])
+  @@index([order])
+}
+
+model BoardComment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  boardId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([boardId])
+  @@index([createdAt])
+}
+
+model BoardLike {
+  id        String   @id @default(cuid())
+  userId    String
+  boardId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, boardId])
+  @@index([userId])
+  @@index([boardId])
+}
+
+model SavedBoard {
+  id        String   @id @default(cuid())
+  userId    String
+  boardId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, boardId])
+  @@index([userId])
+  @@index([boardId])
+  @@index([createdAt])
+}
+
+enum BoardActivityType {
+  CREATED
+  PIN_ADDED
+  PIN_REMOVED
+  MEMBER_ADDED
+  MEMBER_REMOVED
+  COMMENT_ADDED
+  SETTINGS_UPDATED
+  COVER_CHANGED
+}
+
+model BoardActivityLog {
+  id           String            @id @default(cuid())
+  boardId      String
+  userId       String
+  activityType BoardActivityType
+  metadata     String? // JSON string for additional data
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board        Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt    DateTime          @default(now())
+
+  @@index([boardId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([boardId, createdAt])
+}
+
+enum CostLevel {
+  FREE
+  BUDGET
+  MODERATE
+  LUXURY
+}
+
+model Pin {
+  id              String             @id @default(cuid())
+  title           String
+  description     String?
+  location        String
+  latitude        Float?
+  longitude       Float?
+  category        String
+  costLevel       CostLevel?
+  bestTimeToVisit String?
+  isVisited       Boolean            @default(false)
+  userNotes       String? // Private notes
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  images          Image[]
+  tags            TagOnPin[]
+  comments        Comment[]
+  likes           Like[]
+  reports         Report[]
+  savedBy         SavedPin[]
+  boards          BoardPinRelation[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([location])
+  @@index([createdAt])
+  @@index([category, createdAt])
+  @@index([costLevel, createdAt])
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  pinId     String
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([pinId])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  pins      TagOnPin[]
+
+  @@index([name])
+}
+
+model TagOnPin {
+  id        String   @id @default(cuid())
+  pinId     String
+  tagId     String
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([pinId, tagId])
+  @@index([pinId])
+  @@index([tagId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  pinId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([pinId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  pinId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, pinId])
+  @@index([userId])
+  @@index([pinId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  userId    String
+  pinId     String
+  reason    String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, pinId])
+  @@index([userId])
+  @@index([pinId])
+}
+
+model SavedPin {
+  id        String   @id @default(cuid())
+  userId    String
+  pinId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pin       Pin      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, pinId])
+  @@index([userId])
+  @@index([pinId])
+  @@index([createdAt])
+}
