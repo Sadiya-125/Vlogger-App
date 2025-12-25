@@ -4,21 +4,24 @@ import { useState } from "react"
 import { Plus, Bookmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BoardCard } from "./board-card"
-import { CreateBoardModal } from "./create-board-modal"
+import { EnhancedCreateBoardModal } from "./enhanced-create-board-modal"
 
 interface Board {
   id: string
   name: string
   description: string | null
   category: string
-  isPrivate: boolean
+  visibility: string
   coverImage: string | null
   _count: {
     pins: number
     followers: number
+    likes: number
   }
   pins: {
-    images: { url: string }[]
+    pin: {
+      images: { url: string }[]
+    }
   }[]
 }
 
@@ -88,7 +91,7 @@ export function BoardsManager({ boards: initialBoards }: BoardsManagerProps) {
         </div>
       )}
 
-      <CreateBoardModal
+      <EnhancedCreateBoardModal
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
         onBoardCreated={handleBoardCreated}

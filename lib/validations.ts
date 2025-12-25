@@ -52,7 +52,31 @@ export const boardSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   description: z.string().max(500).optional(),
   category: z.enum(["DREAM", "PLANNING", "COMPLETED"]),
-  isPrivate: z.boolean().optional().default(false),
+  visibility: z.enum(["PRIVATE", "PUBLIC", "SHARED"]).optional(),
+  tripCategory: z.enum([
+    "BACKPACKING",
+    "LUXURY",
+    "SOLO",
+    "GROUP",
+    "COUPLES",
+    "NATURE",
+    "CITY",
+    "FOOD",
+    "FESTIVALS",
+    "HIDDEN_GEMS",
+  ]).optional(),
+  subtitle: z.string().max(100).optional(),
+  hashtags: z.array(z.string()).max(10).optional(),
+  layoutMode: z.enum(["MASONRY", "GRID", "TIMELINE", "MAP"]).optional(),
+  themeColor: z.enum([
+    "TRAVEL_BLUE",
+    "EXPLORER_TEAL",
+    "CORAL_ADVENTURE",
+    "GOLD_LUXURY",
+    "MINIMAL_SLATE",
+  ]).optional(),
+  coverImage: z.string().optional(),
+  autoGenCover: z.boolean().optional(),
 });
 
 export type BoardFormData = z.infer<typeof boardSchema>;

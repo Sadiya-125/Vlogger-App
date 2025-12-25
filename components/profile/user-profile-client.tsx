@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import {
   UserPlus,
   UserMinus,
@@ -19,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MasonryGrid } from "@/components/feed/masonry-grid";
 import { EditProfileModal } from "@/components/profile/edit-profile-modal";
+import { BoardsGrid } from "@/components/profile/boards-grid";
 
 interface ProfileUser {
   id: string;
@@ -304,52 +304,7 @@ export function UserProfileClient({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {boards.map((board) => (
-                <Link
-                  key={board.id}
-                  href={`/boards/${board.id}`}
-                  className="group"
-                >
-                  <div className="bg-card rounded-xl overflow-hidden shadow-md border border-border/40 hover:shadow-xl transition-all duration-300">
-                    {/* Board Cover */}
-                    <div className="relative h-48 bg-linear-to-br from-primary/20 to-secondary/20">
-                      {board.pins.length > 0 && board.pins[0].pin.images[0] ? (
-                        <Image
-                          src={board.pins[0].pin.images[0].url}
-                          alt={board.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <LayoutGrid className="h-12 w-12 text-muted-foreground/30" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-xl font-semibold text-white line-clamp-1">
-                          {board.name}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Board Info */}
-                    <div className="p-4 space-y-2">
-                      {board.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {board.description}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{board._count.pins} pins</span>
-                        <span>{board._count.followers} followers</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <BoardsGrid boards={boards} />
           )}
         </TabsContent>
       </Tabs>

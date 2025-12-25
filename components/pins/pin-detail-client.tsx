@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Layers,
   Bookmark,
+  Plus,
 } from "lucide-react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -25,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { AddToBoardModal } from "./add-to-board-modal";
 
 interface Pin {
   id: string;
@@ -73,6 +75,7 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [satelliteView, setSatelliteView] = useState(false);
+  const [showAddToBoard, setShowAddToBoard] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
 
@@ -386,7 +389,7 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
           </div>
 
           {/* Stats & Actions */}
-          <div className="flex items-center gap-4 pb-4 border-border/40">
+          <div className="flex flex-wrap items-center gap-3 pb-4 border-border/40">
             <Button
               variant={isLiked ? "default" : "outline"}
               onClick={handleLike}
@@ -410,6 +413,14 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
             >
               <Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />
               <span>{isSaved ? "Saved" : "Save"}</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddToBoard(true)}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add to Board</span>
             </Button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MessageCircle className="h-4 w-4" />
@@ -464,7 +475,7 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
               {pin.tags.map((tagObj) => (
                 <Link
                   key={tagObj.tag.name}
-                  href={`/?tag=${tagObj.tag.name}`}
+                  href={`/explore?tag=${tagObj.tag.name}`}
                   className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
                 >
                   #{tagObj.tag.name}
@@ -545,6 +556,14 @@ export function PinDetailClient({ pin }: { pin: Pin }) {
           </div>
         </div>
       </div>
+
+      {/* Add to Board Modal */}
+      <AddToBoardModal
+        open={showAddToBoard}
+        onOpenChange={setShowAddToBoard}
+        pinId={pin.id}
+        pinTitle={pin.title}
+      />
     </main>
   );
 }

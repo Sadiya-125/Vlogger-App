@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { LocationSearch } from "@/components/ui/location-search";
 
 export interface FeedFilters {
   category?: string;
@@ -194,15 +195,15 @@ export function FeedFilters({ filters, onFiltersChange }: FeedFiltersProps) {
                   <MapPin className="h-4 w-4" />
                   Location
                 </Label>
-                <Input
-                  placeholder="Search by Location..."
+                <LocationSearch
                   value={localFilters.location || ""}
-                  onChange={(e) =>
+                  onChange={(location) =>
                     setLocalFilters({
                       ...localFilters,
-                      location: e.target.value || undefined,
+                      location: location || undefined,
                     })
                   }
+                  placeholder="Search by Location..."
                 />
               </div>
 

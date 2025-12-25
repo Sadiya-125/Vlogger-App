@@ -52,12 +52,26 @@ export async function POST(
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { clerkId: userId },
     })
 
     if (!user) {
-      return new NextResponse('User not found', { status: 404 })
+      // Auto-create user from Clerk session
+      const { clerkClient } = await import('@clerk/nextjs/server')
+      const client = await clerkClient()
+      const clerkUser = await client.users.getUser(userId)
+
+      user = await prisma.user.create({
+        data: {
+          clerkId: userId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || '',
+          username: clerkUser.username || clerkUser.id,
+          firstName: clerkUser.firstName,
+          lastName: clerkUser.lastName,
+          imageUrl: clerkUser.imageUrl,
+        },
+      })
     }
 
     // Check if already liked

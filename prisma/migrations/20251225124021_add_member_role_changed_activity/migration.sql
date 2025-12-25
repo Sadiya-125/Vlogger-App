@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "BoardActivityType" ADD VALUE 'MEMBER_ROLE_CHANGED';

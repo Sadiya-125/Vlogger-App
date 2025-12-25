@@ -44,10 +44,10 @@ export function DeleteBoardDialog({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete board");
+        throw new Error("Failed to Delete Board");
       }
 
-      toast.success("Board deleted successfully");
+      toast.success("Board Deleted Successfully");
 
       if (onBoardDeleted) {
         onBoardDeleted(board.id);
@@ -56,8 +56,8 @@ export function DeleteBoardDialog({
       router.refresh();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error deleting board:", error);
-      toast.error("Failed to delete board. Please try again.");
+      console.error("Error Deleting Board:", error);
+      toast.error("Failed to Delete Board. Please Try Again.");
     } finally {
       setIsDeleting(false);
     }

@@ -153,13 +153,6 @@ export function InfiniteFeed({ initialPins = [] }: InfiniteFeedProps) {
               )}
             </div>
           )}
-
-          {/* End of Feed */}
-          {!hasMore && pins.length > 0 && (
-            <div className="flex justify-center py-8 text-muted-foreground">
-              <p className="text-sm">You've Reached the End! 🎉</p>
-            </div>
-          )}
         </>
       )}
     </div>

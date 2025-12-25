@@ -33,6 +33,7 @@ model User {
   boardFollows       BoardFollow[]
   boardMembers       BoardMember[]
   boardComments      BoardComment[]
+  commentReactions   CommentReaction[]
   boardLikes         BoardLike[]
   boardActivities    BoardActivityLog[]
   reports            Report[]
@@ -120,6 +121,7 @@ model Board {
   likes          BoardLike[]
   activities     BoardActivityLog[]
   savedBy        SavedBoard[]
+  timelineDays   TimelineDay[]
 
   @@index([userId])
   @@index([category])
@@ -183,18 +185,39 @@ model BoardPinRelation {
 }
 
 model BoardComment {
-  id        String   @id @default(cuid())
+  id        String             @id @default(cuid())
   content   String
   userId    String
   boardId   String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  parentId  String?            // For threaded replies
+  imageUrl  String?            // For image attachments
+  isPinned  Boolean            @default(false) // For pinning important comments
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board     Board              @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  parent    BoardComment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BoardComment[]     @relation("CommentReplies")
+  reactions CommentReaction[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 
   @@index([userId])
   @@index([boardId])
+  @@index([parentId])
   @@index([createdAt])
+}
+
+model CommentReaction {
+  id        String       @id @default(cuid())
+  emoji     String
+  userId    String
+  commentId String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   BoardComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, commentId, emoji])
+  @@index([commentId])
+  @@index([userId])
 }
 
 model BoardLike {
@@ -230,6 +253,7 @@ enum BoardActivityType {
   PIN_REMOVED
   MEMBER_ADDED
   MEMBER_REMOVED
+  MEMBER_ROLE_CHANGED
   COMMENT_ADDED
   SETTINGS_UPDATED
   COVER_CHANGED
@@ -249,6 +273,38 @@ model BoardActivityLog {
   @@index([userId])
   @@index([createdAt])
   @@index([boardId, createdAt])
+}
+
+// Timeline models for trip planning
+model TimelineDay {
+  id          String               @id @default(cuid())
+  boardId     String
+  dayNumber   Int // Day 1, Day 2, etc.
+  title       String? // Optional title for the day
+  notes       String? // Notes for the day
+  board       Board                @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  pins        TimelinePinAssignment[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([boardId, dayNumber])
+  @@index([boardId])
+  @@index([boardId, dayNumber])
+}
+
+model TimelinePinAssignment {
+  id          String      @id @default(cuid())
+  dayId       String
+  pinId       String
+  order       Int         @default(0) // Order within the day
+  day         TimelineDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  pin         Pin         @relation(fields: [pinId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+
+  @@unique([dayId, pinId])
+  @@index([dayId])
+  @@index([pinId])
+  @@index([dayId, order])
 }
 
 enum CostLevel {
@@ -282,6 +338,7 @@ model Pin {
   reports         Report[]
   savedBy         SavedPin[]
   boards          BoardPinRelation[]
+  timelineAssignments TimelinePinAssignment[]
 
   @@index([userId])
   @@index([category])

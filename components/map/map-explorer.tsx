@@ -29,9 +29,28 @@ interface Pin {
 
 interface MapExplorerProps {
   pins: Pin[];
+  filterTag?: string;
 }
 
-export function MapExplorer({ pins }: MapExplorerProps) {
+// Category color mapping
+const categoryColors: Record<string, { primary: string; gradient: string }> = {
+  Adventure: { primary: "#FF6B6B", gradient: "linear-gradient(to right, #FF6B6B, #FF8E53)" },
+  Beach: { primary: "#4ECDC4", gradient: "linear-gradient(to right, #4ECDC4, #44A08D)" },
+  City: { primary: "#4169E1", gradient: "linear-gradient(to right, #4169E1, #4FB2A2)" },
+  Culture: { primary: "#9B59B6", gradient: "linear-gradient(to right, #9B59B6, #C44569)" },
+  Food: { primary: "#F39C12", gradient: "linear-gradient(to right, #F39C12, #E67E22)" },
+  Luxury: { primary: "#FFD700", gradient: "linear-gradient(to right, #FFD700, #FFA500)" },
+  Nature: { primary: "#2ECC71", gradient: "linear-gradient(to right, #2ECC71, #27AE60)" },
+  Budget: { primary: "#3498DB", gradient: "linear-gradient(to right, #3498DB, #2980B9)" },
+  Mountain: { primary: "#8B4513", gradient: "linear-gradient(to right, #8B4513, #A0522D)" },
+  Historical: { primary: "#95A5A6", gradient: "linear-gradient(to right, #95A5A6, #7F8C8D)" },
+};
+
+const getColorForCategory = (category: string) => {
+  return categoryColors[category] || { primary: "#4169E1", gradient: "linear-gradient(to right, #4169E1, #4FB2A2)" };
+};
+
+export function MapExplorer({ pins, filterTag }: MapExplorerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [satelliteView, setSatelliteView] = useState(false);
@@ -79,12 +98,13 @@ export function MapExplorer({ pins }: MapExplorerProps) {
 
       // Add markers
       validPins.forEach((pin) => {
+        const colors = getColorForCategory(pin.category);
         const markerEl = document.createElement("div");
         markerEl.className = "custom-marker";
         markerEl.innerHTML = `
           <div class="relative group cursor-pointer">
-            <div class="absolute -inset-1.5 rounded-full blur-md opacity-75 group-hover:opacity-100 transition duration-300" style="background: linear-gradient(to right, #4169E1, #4FB2A2);"></div>
-            <div class="relative rounded-full shadow-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110" style="background-color: #4169E1; height: 3rem; width: 3rem;">
+            <div class="absolute -inset-1.5 rounded-full blur-md opacity-75 group-hover:opacity-100 transition duration-300" style="background: ${colors.gradient};"></div>
+            <div class="relative rounded-full shadow-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110" style="background-color: ${colors.primary}; height: 3rem; width: 3rem;">
               <svg class="text-white" fill="currentColor" viewBox="0 0 24 24" style="height: 1.75rem; width: 1.75rem;">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
               </svg>
@@ -116,17 +136,14 @@ export function MapExplorer({ pins }: MapExplorerProps) {
             />
             <div style="padding: 1rem;">
               <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 0.5rem;">
-                <h3 style="font-weight: 600; font-size: 1rem; color: ${textColor}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-family: 'Inter', sans-serif;">${
+                <h3 style="margin-top: 4px; font-weight: 600; font-size: 1rem; color: ${textColor}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-family: 'Inter', sans-serif;">${
           pin.title
         }</h3>
-                <span style="padding: 0.25rem 0.625rem; font-size: 0.75rem; font-weight: 500; border-radius: 9999px; background-color: rgba(65, 105, 225, 0.1); color: #4169E1; margin-left: 0.5rem; font-family: 'Inter', sans-serif;">
+                <span style="padding: 0.25rem 0.625rem; font-size: 0.85rem; font-weight: 500; border-radius: 9999px; background-color: ${colors.primary}20; color: ${colors.primary}; margin-left: 0.5rem; font-family: 'Inter', sans-serif;">
                   ${pin.category}
                 </span>
               </div>
               <p style="font-size: 0.875rem; color: ${mutedColor}; display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.75rem; font-family: 'Inter', sans-serif;">
-                <svg style="height: 0.875rem; width: 0.875rem;" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
                 ${pin.location}
               </p>
               ${
@@ -136,9 +153,9 @@ export function MapExplorer({ pins }: MapExplorerProps) {
               }
               <a
                 href="/pins/${pin.id}"
-                style="display: block; width: 100%; margin-top: 0.75rem; padding: 0.625rem 1rem; background-color: #4169E1; color: white; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-align: center; text-decoration: none; transition: background-color 0.2s; font-family: 'Inter', sans-serif;"
-                onmouseover="this.style.backgroundColor='#3557c7'"
-                onmouseout="this.style.backgroundColor='#4169E1'"
+                style="display: block; width: 100%; margin-top: 0.75rem; padding: 0.625rem 1rem; background-color: ${colors.primary}; color: white; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; text-align: center; text-decoration: none; transition: background-color 0.2s; font-family: 'Inter', sans-serif;"
+                onmouseover="this.style.opacity='0.9'"
+                onmouseout="this.style.opacity='1'"
               >
                 View Details
               </a>
@@ -193,15 +210,23 @@ export function MapExplorer({ pins }: MapExplorerProps) {
             <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-sm bg-linear-to-br from-primary to-secondary">
               <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-lg sm:text-xl font-semibold tracking-tight">
                 Explore Map
               </h1>
               <p className="text-sm text-muted-foreground">
-                {validPins.length} Destinations Marked
+                {validPins.length} Destination(s) Marked
               </p>
             </div>
           </div>
+          {filterTag && (
+            <div className="mb-3 pb-3 border-b border-border/40">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                Filtering by Tag:
+                <span className="font-semibold">#{filterTag}</span>
+              </div>
+            </div>
+          )}
           <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
             Discover Amazing Places Around the World. Click on Markers to Learn
             More.
@@ -255,46 +280,15 @@ export function MapExplorer({ pins }: MapExplorerProps) {
           Categories
         </h3>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:gap-y-2 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-secondary"></div>
-            <span className="truncate">Adventure</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-accent"></div>
-            <span className="truncate">Beach</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-primary"></div>
-            <span className="truncate">City</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-primary"></div>
-            <span className="truncate">Culture</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-accent"></div>
-            <span className="truncate">Food</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-warning"></div>
-            <span className="truncate">Luxury</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-success"></div>
-            <span className="truncate">Nature</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-success"></div>
-            <span className="truncate">Budget</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-secondary"></div>
-            <span className="truncate">Mountain</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-3 w-3 shrink-0 rounded-full bg-primary"></div>
-            <span className="truncate">Historical</span>
-          </div>
+          {Object.entries(categoryColors).map(([category, colors]) => (
+            <div key={category} className="flex items-center space-x-2">
+              <div
+                className="h-3 w-3 shrink-0 rounded-full"
+                style={{ backgroundColor: colors.primary }}
+              ></div>
+              <span className="truncate">{category}</span>
+            </div>
+          ))}
         </div>
       </div>
     </main>

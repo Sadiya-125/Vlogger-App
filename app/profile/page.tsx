@@ -70,6 +70,62 @@ export default async function ProfilePage() {
     orderBy: { createdAt: "desc" },
   })
 
+  // Fetch saved pins
+  const savedPins = await prisma.savedPin.findMany({
+    where: { userId: user.id },
+    include: {
+      pin: {
+        include: {
+          images: true,
+          tags: { include: { tag: true } },
+          _count: { select: { likes: true, comments: true } },
+          user: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true,
+              imageUrl: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  // Fetch saved boards
+  const savedBoards = await prisma.savedBoard.findMany({
+    where: { userId: user.id },
+    include: {
+      board: {
+        include: {
+          _count: { select: { pins: true, followers: true, likes: true } },
+          pins: {
+            take: 3,
+            include: {
+              pin: {
+                include: {
+                  images: { take: 1 },
+                },
+              },
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true,
+              imageUrl: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -78,7 +134,12 @@ export default async function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ProfileHeader user={user} isOwnProfile={true} />
           <ProfileStats stats={user._count} />
-          <ProfileTabs pins={pins} boards={boards} />
+          <ProfileTabs
+            pins={pins}
+            boards={boards}
+            savedPins={savedPins.map(sp => sp.pin)}
+            savedBoards={savedBoards.map(sb => sb.board)}
+          />
         </div>
       </main>
     </div>

@@ -7,7 +7,11 @@
       "Bash(npx prisma:*)",
       "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=yes)",
       "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\")",
-      "Bash(\"c:\\\\Users\\\\Sadiya Maheen\\\\Desktop\\\\vlogger-app\\\\app\\\\api\\\\users\\\\[userId]\\\\follow\\\\route.ts\")"
+      "Bash(\"c:\\\\Users\\\\Sadiya Maheen\\\\Desktop\\\\vlogger-app\\\\app\\\\api\\\\users\\\\[userId]\\\\follow\\\\route.ts\")",
+      "Bash(npm run build:*)",
+      "Bash(taskkill:*)",
+      "Bash(New-Item -Path \"c:\\\\Users\\\\Sadiya Maheen\\\\Desktop\\\\vlogger-app\\\\app\\\\api\\\\users\\\\[userId]\\\\follow\\\\route.ts\" -ItemType File -Force)",
+      "Bash(ls:*)"
     ]
   }
 }

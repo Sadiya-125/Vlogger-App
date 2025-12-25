@@ -29,39 +29,64 @@ interface Board {
   name: string;
   description: string | null;
   category: string;
-  isPrivate: boolean;
+  visibility: string;
   coverImage: string | null;
   _count: {
     pins: number;
+    followers: number;
+    likes: number;
   };
   pins: {
-    images: { url: string }[];
+    pin: {
+      images: { url: string }[];
+    };
   }[];
+  user?: {
+    id: string;
+    username: string;
+    firstName: string | null;
+    lastName: string | null;
+    imageUrl: string | null;
+  };
 }
 
 interface ProfileTabsProps {
   pins: Pin[];
   boards: Board[];
+  savedPins?: Pin[];
+  savedBoards?: Board[];
 }
 
-export function ProfileTabs({ pins, boards }: ProfileTabsProps) {
+export function ProfileTabs({ pins, boards, savedPins = [], savedBoards = [] }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState("pins");
 
   return (
     <div className="mt-8">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12 bg-card border border-border/40 rounded-md p-1">
+        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-12 bg-card border border-border/40 rounded-md p-1">
           <TabsTrigger
             value="pins"
-            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
           >
             Pins ({pins.length})
           </TabsTrigger>
           <TabsTrigger
             value="boards"
-            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
           >
             Boards ({boards.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="saved-pins"
+            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
+          >
+            Saved Pins ({savedPins.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="saved-boards"
+            className="rounded-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
+          >
+            Saved Boards ({savedBoards.length})
           </TabsTrigger>
         </TabsList>
 
@@ -122,6 +147,62 @@ export function ProfileTabs({ pins, boards }: ProfileTabsProps) {
               <h3 className="text-lg font-semibold mb-2">No Boards Yet</h3>
               <p className="text-muted-foreground max-w-sm">
                 Organize Your Travel Destinations by Creating Your First Board!
+              </p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="saved-pins" className="mt-8">
+          {savedPins.length > 0 ? (
+            <MasonryGrid pins={savedPins} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center mb-4">
+                <svg
+                  className="h-12 w-12 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Saved Pins Yet</h3>
+              <p className="text-muted-foreground max-w-sm">
+                Save pins you love to easily find them later!
+              </p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="saved-boards" className="mt-8">
+          {savedBoards.length > 0 ? (
+            <BoardsGrid boards={savedBoards} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center mb-4">
+                <svg
+                  className="h-12 w-12 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Saved Boards Yet</h3>
+              <p className="text-muted-foreground max-w-sm">
+                Save travel boards to get inspiration for your next adventure!
               </p>
             </div>
           )}

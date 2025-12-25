@@ -51,6 +51,27 @@ export async function POST(req: Request) {
           hashtags: hashtags || [],
           userId: user.id,
         },
+        include: {
+          pins: {
+            take: 3,
+            include: {
+              pin: {
+                include: {
+                  images: {
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              pins: true,
+              followers: true,
+              likes: true,
+            },
+          },
+        },
       })
 
       // Log board creation activity
@@ -96,13 +117,33 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category')
     const visibility = searchParams.get('visibility')
+    const sortBy = searchParams.get('sortBy') || 'recent' // recent, popular, trending
+
+    // Build where clause
+    const whereClause: any = {
+      userId: user.id,
+      ...(category && { category: category as any }),
+      ...(visibility && { visibility: visibility as any }),
+    }
+
+    // Add trending filter (created in the last 7 days)
+    if (sortBy === 'trending') {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      whereClause.createdAt = { gte: sevenDaysAgo }
+    }
+
+    // Determine orderBy based on sortBy parameter
+    let orderBy: any = { createdAt: 'desc' } // Default: recent
+
+    if (sortBy === 'popular') {
+      // For popular, we'll sort in application code after fetching
+      // because we need to calculate total engagement (likes + comments)
+      orderBy = { createdAt: 'desc' }
+    }
 
     const boards = await prisma.board.findMany({
-      where: {
-        userId: user.id,
-        ...(category && { category: category as any }),
-        ...(visibility && { visibility: visibility as any }),
-      },
+      where: whereClause,
       include: {
         pins: {
           take: 3,
@@ -125,10 +166,26 @@ export async function GET(req: Request) {
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
     })
+
+    // Sort by popularity if requested (likes + comments)
+    if (sortBy === 'popular') {
+      boards.sort((a, b) => {
+        const aEngagement = a._count.likes + a._count.comments
+        const bEngagement = b._count.likes + b._count.comments
+        return bEngagement - aEngagement
+      })
+    }
+
+    // Sort by trending if requested (recent posts with high engagement)
+    if (sortBy === 'trending') {
+      boards.sort((a, b) => {
+        const aEngagement = a._count.likes + a._count.comments
+        const bEngagement = b._count.likes + b._count.comments
+        return bEngagement - aEngagement
+      })
+    }
 
     return NextResponse.json(boards)
   } catch (error) {

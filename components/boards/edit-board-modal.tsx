@@ -31,7 +31,6 @@ const editBoardSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   description: z.string().max(500).optional(),
   category: z.enum(["DREAM", "PLANNING", "COMPLETED"]),
-  isPrivate: z.boolean(),
 });
 
 type EditBoardFormData = z.infer<typeof editBoardSchema>;
@@ -41,7 +40,7 @@ interface Board {
   name: string;
   description: string | null;
   category: string;
-  isPrivate: boolean;
+  visibility: string;
 }
 
 interface EditBoardModalProps {
@@ -59,12 +58,12 @@ export function EditBoardModal({
 }: EditBoardModalProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(board.visibility === "PRIVATE");
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<EditBoardFormData>({
     resolver: zodResolver(editBoardSchema),
@@ -72,11 +71,8 @@ export function EditBoardModal({
       name: board.name,
       description: board.description || "",
       category: board.category as "DREAM" | "PLANNING" | "COMPLETED",
-      isPrivate: board.isPrivate,
     },
   });
-
-  const isPrivate = watch("isPrivate");
 
   const onSubmit = async (data: EditBoardFormData) => {
     setIsSubmitting(true);
@@ -85,7 +81,10 @@ export function EditBoardModal({
       const response = await fetch(`/api/boards/${board.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          visibility: isPrivate ? "PRIVATE" : "PUBLIC",
+        }),
       });
 
       if (!response.ok) {
@@ -203,19 +202,19 @@ export function EditBoardModal({
           </div>
 
           {/* Privacy Toggle */}
-          <div className="flex items-center justify-between rounded-sm border border-border/40 p-4">
+          <div className="flex items-center justify-between rounded-lg border border-border/40 p-3">
             <div className="space-y-0.5">
-              <Label htmlFor="private" className="text-base">
+              <Label htmlFor="private" className="text-sm">
                 Private Board
               </Label>
               <p className="text-sm text-muted-foreground">
-                Only You Can See this Board
+                Only You Can See This Board
               </p>
             </div>
             <Switch
               id="private"
               checked={isPrivate}
-              onCheckedChange={(checked) => setValue("isPrivate", checked)}
+              onCheckedChange={setIsPrivate}
             />
           </div>
 

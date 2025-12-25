@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { LocationSearch } from "@/components/ui/location-search";
 import { uploadImage } from "@/lib/supabase";
 
 const editProfileSchema = z.object({
@@ -60,10 +61,12 @@ export function EditProfileModal({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     user.imageUrl
   );
+  const [location, setLocation] = useState(user.location || "");
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
@@ -250,10 +253,13 @@ export function EditProfileModal({
           {/* Location */}
           <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              placeholder="New York, USA"
-              {...register("location")}
+            <LocationSearch
+              value={location}
+              onChange={(newLocation) => {
+                setLocation(newLocation);
+                setValue("location", newLocation);
+              }}
+              placeholder="Search for Your Location..."
             />
             {errors.location && (
               <p className="text-sm text-destructive">

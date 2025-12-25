@@ -15,16 +15,40 @@ export async function POST(
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const currentUser = await prisma.user.findUnique({
+    let currentUser = await prisma.user.findUnique({
       where: { clerkId: currentClerkId },
     })
 
-    const targetUser = await prisma.user.findUnique({
-      where: { clerkId: targetUserId },
+    if (!currentUser) {
+      // Auto-create current user
+      const { clerkClient } = await import('@clerk/nextjs/server')
+      const client = await clerkClient()
+      const clerkUser = await client.users.getUser(currentClerkId)
+
+      currentUser = await prisma.user.create({
+        data: {
+          clerkId: currentClerkId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || '',
+          username: clerkUser.username || clerkUser.id,
+          firstName: clerkUser.firstName,
+          lastName: clerkUser.lastName,
+          imageUrl: clerkUser.imageUrl,
+        },
+      })
+    }
+
+    // Find target user by clerkId or username
+    const targetUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { clerkId: targetUserId },
+          { username: targetUserId },
+        ],
+      },
     })
 
-    if (!currentUser || !targetUser) {
-      return new NextResponse('User not found', { status: 404 })
+    if (!targetUser) {
+      return new NextResponse('Target user not found', { status: 404 })
     }
 
     // Can't follow yourself
@@ -85,11 +109,21 @@ export async function GET(
       where: { clerkId: currentClerkId },
     })
 
-    const targetUser = await prisma.user.findUnique({
-      where: { clerkId: targetUserId },
+    if (!currentUser) {
+      return NextResponse.json({ following: false })
+    }
+
+    // Find target user by clerkId or username
+    const targetUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { clerkId: targetUserId },
+          { username: targetUserId },
+        ],
+      },
     })
 
-    if (!currentUser || !targetUser) {
+    if (!targetUser) {
       return NextResponse.json({ following: false })
     }
 

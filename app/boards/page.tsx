@@ -22,10 +22,16 @@ export default async function BoardsPage() {
   const boards = await prisma.board.findMany({
     where: { userId: user.id },
     include: {
-      _count: { select: { pins: true, followers: true } },
+      _count: { select: { pins: true, followers: true, likes: true } },
       pins: {
         take: 4,
-        include: { images: { take: 1 } },
+        include: {
+          pin: {
+            include: {
+              images: { take: 1 },
+            },
+          },
+        },
       },
     },
     orderBy: { createdAt: "desc" },

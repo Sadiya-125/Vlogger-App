@@ -5,11 +5,12 @@ import { prisma } from '@/lib/prisma'
 // GET /api/pins/[pinId]
 export async function GET(
   req: Request,
-  { params }: { params: { pinId: string } }
+  { params }: { params: Promise<{ pinId: string }> }
 ) {
   try {
+    const { pinId } = await params;
     const pin = await prisma.pin.findUnique({
-      where: { id: params.pinId },
+      where: { id: pinId },
       include: {
         user: {
           select: {
@@ -64,9 +65,10 @@ export async function GET(
 // PATCH /api/pins/[pinId]
 export async function PATCH(
   req: Request,
-  { params }: { params: { pinId: string } }
+  { params }: { params: Promise<{ pinId: string }> }
 ) {
   try {
+    const { pinId } = await params;
     const { userId } = await auth()
 
     if (!userId) {
@@ -83,7 +85,7 @@ export async function PATCH(
 
     // Check ownership
     const existingPin = await prisma.pin.findUnique({
-      where: { id: params.pinId },
+      where: { id: pinId },
     })
 
     if (!existingPin || existingPin.userId !== user.id) {
@@ -94,7 +96,7 @@ export async function PATCH(
     const { isVisited, ...updateData } = body
 
     const pin = await prisma.pin.update({
-      where: { id: params.pinId },
+      where: { id: pinId },
       data: {
         ...updateData,
         ...(typeof isVisited === 'boolean' && { isVisited }),
@@ -119,9 +121,10 @@ export async function PATCH(
 // DELETE /api/pins/[pinId]
 export async function DELETE(
   req: Request,
-  { params }: { params: { pinId: string } }
+  { params }: { params: Promise<{ pinId: string }> }
 ) {
   try {
+    const { pinId } = await params;
     const { userId } = await auth()
 
     if (!userId) {
@@ -137,7 +140,7 @@ export async function DELETE(
     }
 
     const existingPin = await prisma.pin.findUnique({
-      where: { id: params.pinId },
+      where: { id: pinId },
     })
 
     if (!existingPin || existingPin.userId !== user.id) {
@@ -145,7 +148,7 @@ export async function DELETE(
     }
 
     await prisma.pin.delete({
-      where: { id: params.pinId },
+      where: { id: pinId },
     })
 
     return new NextResponse(null, { status: 204 })

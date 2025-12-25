@@ -20,14 +20,18 @@ interface Board {
   name: string;
   description: string | null;
   category: string;
-  isPrivate: boolean;
+  visibility: string;
   coverImage: string | null;
+  themeColor?: string;
   _count: {
     pins: number;
     followers: number;
+    likes: number;
   };
   pins: {
-    images: { url: string }[];
+    pin: {
+      images: { url: string }[];
+    };
   }[];
 }
 
@@ -43,13 +47,21 @@ const categoryColors: Record<string, string> = {
   COMPLETED: "bg-success/20 text-success border-success/30",
 };
 
+const themeColors: Record<string, string> = {
+  TRAVEL_BLUE: "bg-blue-500",
+  EXPLORER_TEAL: "bg-teal-500",
+  CORAL_ADVENTURE: "bg-coral-500",
+  GOLD_LUXURY: "bg-yellow-500",
+  MINIMAL_SLATE: "bg-slate-500",
+};
+
 export function BoardCard({ board, onDelete, onUpdate }: BoardCardProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const previewImages = board.pins
-    .slice(0, 4)
-    .map((pin) => pin.images[0]?.url)
+  const previewImages = (board.pins || [])
+    .slice(0, 3)
+    .map((pinRelation) => pinRelation.pin.images[0]?.url)
     .filter(Boolean);
 
   return (
@@ -58,47 +70,70 @@ export function BoardCard({ board, onDelete, onUpdate }: BoardCardProps) {
         {/* Cover/Preview Images */}
         <Link href={`/boards/${board.id}`}>
           <div className="relative h-48 sm:h-56 bg-linear-to-br from-muted to-muted/50 cursor-pointer">
-            {previewImages.length > 0 ? (
-              <div
-                className={cn(
-                  "grid gap-1 h-full p-2",
-                  previewImages.length === 1 && "grid-cols-1",
-                  previewImages.length === 2 && "grid-cols-2",
-                  previewImages.length >= 3 && "grid-cols-2"
-                )}
-              >
-                {previewImages.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className={cn(
-                      "relative rounded-sm overflow-hidden",
-                      previewImages.length === 3 && idx === 0 && "col-span-2"
-                    )}
-                  >
-                    <Image
-                      src={url}
-                      alt={`Preview ${idx + 1}`}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : board.coverImage ? (
+            {board.coverImage ? (
+              // Priority 1: Uploaded cover image
               <Image
                 src={board.coverImage}
                 alt={board.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
+            ) : board.themeColor ? (
+              // Priority 2: Theme color
+              <div
+                className={cn(
+                  "flex items-center justify-center h-full",
+                  themeColors[board.themeColor] || themeColors.TRAVEL_BLUE
+                )}
+              >
+                <MapPin className="h-16 w-16 text-white/30" />
+              </div>
+            ) : previewImages.length > 0 ? (
+              // Priority 3: Collage of 3 pins
+              <div className="grid grid-cols-2 gap-1 h-full p-2">
+                <div
+                  className={cn(
+                    "relative rounded-sm overflow-hidden",
+                    previewImages.length === 3 && "row-span-2"
+                  )}
+                >
+                  <Image
+                    src={previewImages[0]}
+                    alt="Preview 1"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                {previewImages.length >= 2 && (
+                  <div className="relative rounded-sm overflow-hidden">
+                    <Image
+                      src={previewImages[1]}
+                      alt="Preview 2"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                {previewImages.length >= 3 && (
+                  <div className="relative rounded-sm overflow-hidden">
+                    <Image
+                      src={previewImages[2]}
+                      alt="Preview 3"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+              </div>
             ) : (
+              // Fallback: Placeholder icon
               <div className="flex items-center justify-center h-full">
                 <MapPin className="h-16 w-16 text-muted-foreground/30" />
               </div>
             )}
 
             {/* Privacy Badge */}
-            {board.isPrivate && (
+            {board.visibility === "PRIVATE" && (
               <div className="absolute top-3 left-3 bg-card/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md flex items-center gap-1.5">
                 <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">
@@ -175,7 +210,7 @@ export function BoardCard({ board, onDelete, onUpdate }: BoardCardProps) {
                 <Users className="h-3.5 w-3.5" />
                 <span>
                   {board._count.followers}{" "}
-                  {board._count.followers === 1 ? "follower" : "followers"}
+                  {board._count.followers === 1 ? "Follower" : "Followers"}
                 </span>
               </div>
             )}

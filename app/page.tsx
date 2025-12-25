@@ -1,10 +1,15 @@
+import { auth } from "@clerk/nextjs/server";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { InfiniteFeed } from "@/components/feed/infinite-feed";
+import { FeaturedBoardsCarousel } from "@/components/home/featured-boards-carousel";
+import { YourBoardsSection } from "@/components/home/your-boards-section";
 import { Compass } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
+  const { userId } = await auth();
+
   // Fetch initial pins from database for SSR
   const initialPins = await prisma.pin.findMany({
     take: 20,
@@ -36,6 +41,78 @@ export default async function Home() {
     },
   });
 
+  // Fetch featured boards (popular public boards)
+  const featuredBoards = await prisma.board.findMany({
+    where: {
+      visibility: "PUBLIC",
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          imageUrl: true,
+        },
+      },
+      _count: {
+        select: {
+          pins: true,
+          followers: true,
+          likes: true,
+        },
+      },
+      pins: {
+        take: 3,
+        include: {
+          pin: {
+            include: {
+              images: { take: 1 },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ followers: { _count: "desc" } }, { likes: { _count: "desc" } }],
+    take: 10,
+  });
+
+  // Fetch user's boards if signed in
+  let userBoards: any[] = [];
+  if (userId) {
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (user) {
+      userBoards = await prisma.board.findMany({
+        where: { userId: user.id },
+        include: {
+          _count: {
+            select: {
+              pins: true,
+              followers: true,
+              likes: true,
+            },
+          },
+          pins: {
+            take: 3,
+            include: {
+              pin: {
+                include: {
+                  images: { take: 1 },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      });
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -64,21 +141,28 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Feed Section */}
-        <section className="container mx-auto px-4 md:px-6 py-8 md:py-12">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+        {/* Feed Section - Pins First */}
+        <section className="py-12 md:py-16 border-b border-border/40">
+          <div className="container mx-auto px-4 md:px-6">
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
                 Discover Destinations
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Personalized feed with infinite scroll and smart filters
+              <p className="text-base md:text-lg text-muted-foreground">
+                Explore Breathtaking Locations, Hidden Gems, and Travel Inspiration from Around the World
               </p>
             </div>
-          </div>
 
-          <InfiniteFeed initialPins={initialPins} />
+            <InfiniteFeed initialPins={initialPins} />
+          </div>
         </section>
+
+        {/* Your Boards Section - Second */}
+        <YourBoardsSection boards={userBoards} isSignedIn={!!userId} />
+
+        {/* Featured Boards Carousel - Last */}
+        <FeaturedBoardsCarousel boards={featuredBoards} />
       </main>
 
       <Footer />

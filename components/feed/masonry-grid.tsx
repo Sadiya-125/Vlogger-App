@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -126,15 +126,11 @@ function PinCard({ pin }: { pin: Pin }) {
     }
   };
 
-  // Calculate random height between 300–500px for masonry effect (stable)
-  const heightRef = useRef(300 + Math.floor(Math.random() * 200));
-  const height = heightRef.current;
-
   return (
     <Link
       href={`/pins/${pin.id}`}
       className="group relative break-inside-avoid mb-4 block"
-      style={{ height: `${height}px` }}
+      style={{ height: "500px" }}
     >
       <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-md transition-shadow duration-300 hover:shadow-xl">
         <Image
@@ -165,13 +161,13 @@ function PinCard({ pin }: { pin: Pin }) {
                 if (response.ok) {
                   const data = await response.json();
                   setIsSaved(data.saved);
-                  toast.success(data.saved ? "Pin saved!" : "Pin unsaved");
+                  toast.success(data.saved ? "Pin Saved!" : "Pin Unsaved");
                 } else if (response.status === 401) {
-                  toast.error("Please sign in to save pins");
+                  toast.error("Please Sign In to Save Pins");
                 }
               } catch (error) {
-                console.error("Failed to save pin:", error);
-                toast.error("Failed to save pin");
+                console.error("Failed to Save Pin:", error);
+                toast.error("Failed to Save Pin");
               }
             }}
             className={cn(
@@ -245,10 +241,10 @@ function PinCard({ pin }: { pin: Pin }) {
                     document.body.removeChild(link);
                     URL.revokeObjectURL(blobUrl);
 
-                    toast.success("Download started!");
+                    toast.success("Download Started!");
                   } catch (error) {
-                    console.error("Download failed:", error);
-                    toast.error("Failed to download image");
+                    console.error("Download Failed:", error);
+                    toast.error("Failed to Download Image");
                   }
                 }}
               >
@@ -270,16 +266,16 @@ function PinCard({ pin }: { pin: Pin }) {
                     if (response.ok) {
                       const data = await response.json();
                       toast.success(
-                        data.message || "Pin reported successfully"
+                        data.message || "Pin Reported Successfully"
                       );
                     } else if (response.status === 401) {
-                      toast.error("Please sign in to report pins");
+                      toast.error("Please Sign In to Report Pins");
                     } else {
-                      toast.error("Failed to report pin");
+                      toast.error("Failed to Report Pin");
                     }
                   } catch (error) {
-                    console.error("Failed to report pin:", error);
-                    toast.error("Failed to report pin");
+                    console.error("Failed to Report Pin:", error);
+                    toast.error("Failed to Report Pin");
                   }
                 }}
                 className="text-destructive focus:text-destructive"
@@ -304,8 +300,8 @@ function PinCard({ pin }: { pin: Pin }) {
               className="flex items-center space-x-1.5 text-white/90 drop-shadow-md"
               style={{ textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}
             >
-              <MapPin className="h-3.5 w-3.5 drop-shadow-lg" />
-              <span className="text-xs font-medium">{pin.location}</span>
+              <MapPin className="h-4 w-4 drop-shadow-lg shrink-0" />
+              <span className="text-sm font-medium">{pin.location}</span>
             </div>
             {pin.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -313,7 +309,7 @@ function PinCard({ pin }: { pin: Pin }) {
                   <span
                     key={tagObj.tag.name}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] font-medium border backdrop-blur-md",
+                      "px-2.5 py-1 rounded-full text-xs font-medium border backdrop-blur-md",
                       getTagColor(tagObj.tag.name)
                     )}
                   >
@@ -340,7 +336,7 @@ function PinCard({ pin }: { pin: Pin }) {
                 ) : (
                   <div className="h-7 w-7 rounded-full bg-linear-to-br from-primary to-secondary" />
                 )}
-                <span className="text-xs font-medium text-white">
+                <span className="text-sm font-medium text-white">
                   {displayName}
                 </span>
               </div>
@@ -356,7 +352,7 @@ function PinCard({ pin }: { pin: Pin }) {
                       : "text-white group-hover/like:scale-110"
                   )}
                 />
-                <span className="text-xs font-medium text-white">{likes}</span>
+                <span className="text-sm font-medium text-white">{likes}</span>
               </button>
             </div>
           </div>

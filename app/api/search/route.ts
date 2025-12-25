@@ -80,7 +80,7 @@ export async function GET(req: Request) {
       results.boards = await prisma.board.findMany({
         where: {
           AND: [
-            { isPrivate: false },
+            { visibility: "PUBLIC" },
             {
               OR: [
                 { name: { contains: query, mode: "insensitive" } },
@@ -98,10 +98,16 @@ export async function GET(req: Request) {
               lastName: true,
             },
           },
-          _count: { select: { pins: true } },
+          _count: { select: { pins: true, followers: true, likes: true } },
           pins: {
             take: 3,
-            include: { images: { take: 1 } },
+            include: {
+              pin: {
+                include: {
+                  images: { take: 1 },
+                },
+              },
+            },
           },
         },
         take: 5,

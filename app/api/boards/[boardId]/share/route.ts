@@ -3,13 +3,14 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(
   req: Request,
-  { params }: { params: { boardId: string } }
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
   try {
-    const board = await prisma.board.findUnique({
+    const { boardId } = await params;
+    const board = await prisma.board.findFirst({
       where: {
-        id: params.boardId,
-        isPrivate: false, // Only allow sharing public boards
+        id: boardId,
+        visibility: 'PUBLIC', // Only allow sharing public boards
       },
       include: {
         user: {
@@ -23,21 +24,25 @@ export async function GET(
         },
         pins: {
           include: {
-            images: true,
-            tags: { include: { tag: true } },
-            user: {
-              select: {
-                id: true,
-                username: true,
-                firstName: true,
-                lastName: true,
-                imageUrl: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-                comments: true,
+            pin: {
+              include: {
+                images: true,
+                tags: { include: { tag: true } },
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    firstName: true,
+                    lastName: true,
+                    imageUrl: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    likes: true,
+                    comments: true,
+                  },
+                },
               },
             },
           },

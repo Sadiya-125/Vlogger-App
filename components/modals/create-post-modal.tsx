@@ -152,17 +152,17 @@ export function CreatePostModal({ open, onOpenChange }: CreatePostModalProps) {
       setLatitude(undefined);
       setLongitude(undefined);
 
-      toast.success("Pin created successfully! 🎉", { id: "create-pin" });
+      toast.success("Pin Created Successfully!", { id: "create-pin" });
 
       // Close modal and refresh
       onOpenChange(false);
       router.refresh();
     } catch (error) {
-      console.error("Error creating pin:", error);
+      console.error("Error Creating Pin:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to create pin. Please try again.",
+          : "Failed to Create Pin. Please Try Again.",
         { id: "create-pin" }
       );
     } finally {

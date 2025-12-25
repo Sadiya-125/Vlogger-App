@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs"
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
@@ -6,7 +6,9 @@ export default function SignUpPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold mb-2">Join SceneSavvy</h1>
-          <p className="text-muted-foreground">Start planning your dream adventures</p>
+          <p className="text-muted-foreground">
+            Start Planning Your Dream Adventures
+          </p>
         </div>
         <SignUp
           appearance={{
@@ -18,5 +20,5 @@ export default function SignUpPage() {
         />
       </div>
     </div>
-  )
+  );
 }

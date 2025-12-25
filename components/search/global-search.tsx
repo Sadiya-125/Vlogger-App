@@ -72,7 +72,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
           setShowResults(true);
         }
       } catch (error) {
-        console.error("Search error:", error);
+        console.error("Search Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -215,7 +215,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm">{displayName}</p>
                           <p className="text-xs text-muted-foreground">
-                            @{user.username} · {user._count.pins} pins
+                            @{user.username} · {user._count.pins} Pins
                           </p>
                         </div>
                       </Link>
@@ -256,7 +256,8 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                           {board.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {board._count.pins} pins · by @{board.user.username}
+                          {board._count.pins} Pins · By {""}
+                          {board.user.firstName + " " + board.user.lastName}
                         </p>
                       </div>
                     </Link>

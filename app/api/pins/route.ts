@@ -10,6 +10,31 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const category = searchParams.get('category')
     const userId = searchParams.get('userId')
+    const sortBy = searchParams.get('sortBy') || 'recent' // recent, popular, trending
+    const q = searchParams.get('q') // search query
+
+    // Build where clause
+    const whereClause: any = {
+      ...(category && { category }),
+      ...(userId && { userId }),
+    }
+
+    // Add trending filter (created in the last 7 days)
+    if (sortBy === 'trending') {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      whereClause.createdAt = { gte: sevenDaysAgo }
+    }
+
+    // Add search filter if query provided
+    if (q) {
+      whereClause.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
+        { location: { contains: q, mode: 'insensitive' } },
+        { category: { contains: q, mode: 'insensitive' } },
+      ]
+    }
 
     const pins = await prisma.pin.findMany({
       take: limit + 1,
@@ -19,10 +44,7 @@ export async function GET(req: Request) {
           id: cursor,
         },
       }),
-      where: {
-        ...(category && { category }),
-        ...(userId && { userId }),
-      },
+      where: whereClause,
       include: {
         user: {
           select: {
@@ -50,6 +72,24 @@ export async function GET(req: Request) {
         createdAt: 'desc',
       },
     })
+
+    // Sort by popularity if requested (likes + comments)
+    if (sortBy === 'popular') {
+      pins.sort((a, b) => {
+        const aEngagement = a._count.likes + a._count.comments
+        const bEngagement = b._count.likes + b._count.comments
+        return bEngagement - aEngagement
+      })
+    }
+
+    // Sort by trending if requested (recent posts with high engagement)
+    if (sortBy === 'trending') {
+      pins.sort((a, b) => {
+        const aEngagement = a._count.likes + a._count.comments
+        const bEngagement = b._count.likes + b._count.comments
+        return bEngagement - aEngagement
+      })
+    }
 
     let nextCursor: string | undefined = undefined
     if (pins.length > limit) {
