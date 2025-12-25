@@ -213,7 +213,7 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
           Members & Collaboration
         </h2>
         <p className="text-sm text-muted-foreground">
-          Manage who has access to "{board.name}"
+          Manage Who Has Access to "{board.name}"
         </p>
       </div>
 
@@ -254,7 +254,10 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
 
                   <div className="space-y-2">
                     <Label htmlFor="role">Role</Label>
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <Select
+                      value={selectedRole}
+                      onValueChange={setSelectedRole}
+                    >
                       <SelectTrigger id="role">
                         <SelectValue />
                       </SelectTrigger>
@@ -264,7 +267,9 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
                           .map(([key, config]) => (
                             <SelectItem key={key} value={key}>
                               <div className="flex items-center gap-2">
-                                <config.icon className={cn("h-4 w-4", config.color)} />
+                                <config.icon
+                                  className={cn("h-4 w-4", config.color)}
+                                />
                                 <span>{config.label}</span>
                                 <span className="text-xs text-muted-foreground">
                                   - {config.description}
@@ -352,7 +357,8 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
             </div>
 
             {members.map((member) => {
-              const roleData = roleConfig[member.role as keyof typeof roleConfig];
+              const roleData =
+                roleConfig[member.role as keyof typeof roleConfig];
               const RoleIcon = roleData?.icon || Users;
               const displayName =
                 member.user.firstName && member.user.lastName
@@ -372,13 +378,18 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
                   </Avatar>
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{displayName}</p>
+                    <p className="font-semibold text-sm truncate">
+                      {displayName}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       @{member.user.username}
                     </p>
                   </div>
 
-                  <Badge variant="secondary" className={cn("gap-1", roleData?.bg)}>
+                  <Badge
+                    variant="secondary"
+                    className={cn("gap-1", roleData?.bg)}
+                  >
                     <RoleIcon className={cn("h-3 w-3", roleData?.color)} />
                     {roleData?.label || member.role}
                   </Badge>
@@ -386,7 +397,11 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
                   {canManage && member.role !== "OWNER" && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -395,12 +410,16 @@ export function MembersSettings({ board, isOwner }: MembersSettingsProps) {
                           onClick={() =>
                             handleChangeRole(
                               member.id,
-                              member.role === "CO_ADMIN" ? "CAN_ADD_PINS" : "CO_ADMIN"
+                              member.role === "CO_ADMIN"
+                                ? "CAN_ADD_PINS"
+                                : "CO_ADMIN"
                             )
                           }
                         >
                           <Shield className="h-4 w-4 mr-2" />
-                          {member.role === "CO_ADMIN" ? "Demote" : "Promote"} to{" "}
+                          {member.role === "CO_ADMIN"
+                            ? "Demote"
+                            : "Promote"} to{" "}
                           {member.role === "CO_ADMIN" ? "Editor" : "Co-Admin"}
                         </DropdownMenuItem>
                         <DropdownMenuItem

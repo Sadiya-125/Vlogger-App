@@ -154,7 +154,7 @@ export function MembersModal({
       });
 
       if (response.ok) {
-        toast.success(`@${usernameToInvite} invited! ✨`);
+        toast.success(`@${usernameToInvite} Invited! ✨`);
         setUsernameToInvite("");
         setShowInviteForm(false);
         fetchMembers();
@@ -224,14 +224,14 @@ export function MembersModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-150 max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
             Members
           </DialogTitle>
           <DialogDescription>
-            Manage who has access to "{boardName}"
+            Manage Who Has Access to "{boardName}"
           </DialogDescription>
         </DialogHeader>
 
@@ -246,7 +246,7 @@ export function MembersModal({
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Enter username..."
+                        placeholder="Enter Username..."
                         value={usernameToInvite}
                         onChange={(e) => setUsernameToInvite(e.target.value)}
                         className="pl-10"
@@ -259,7 +259,10 @@ export function MembersModal({
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <Select
+                      value={selectedRole}
+                      onValueChange={setSelectedRole}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -269,9 +272,11 @@ export function MembersModal({
                           .map(([key, config]) => (
                             <SelectItem key={key} value={key}>
                               <div className="flex items-center gap-2">
-                                <config.icon className={cn("h-4 w-4", config.color)} />
+                                <config.icon
+                                  className={cn("h-4 w-4", config.color)}
+                                />
                                 <span>{config.label}</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-sm text-muted-foreground">
                                   - {config.description}
                                 </span>
                               </div>
@@ -373,7 +378,11 @@ export function MembersModal({
                       {canManage && member.role !== "OWNER" && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -389,12 +398,20 @@ export function MembersModal({
                               }
                             >
                               <Shield className="h-4 w-4 mr-2" />
-                              {member.role === "CO_ADMIN" ? "Demote" : "Promote"} to{" "}
-                              {member.role === "CO_ADMIN" ? "Editor" : "Co-Admin"}
+                              {member.role === "CO_ADMIN"
+                                ? "Demote"
+                                : "Promote"}{" "}
+                              to{" "}
+                              {member.role === "CO_ADMIN"
+                                ? "Editor"
+                                : "Co-Admin"}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
-                                handleRemoveMember(member.id, member.user.username)
+                                handleRemoveMember(
+                                  member.id,
+                                  member.user.username
+                                )
                               }
                               className="text-destructive"
                             >

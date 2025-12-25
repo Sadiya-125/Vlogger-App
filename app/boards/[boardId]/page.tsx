@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { BoardHero } from "@/components/boards/detail/board-hero";
 import { BoardTabs } from "@/components/boards/detail/board-tabs";
+import { PrivateBoardRedirect } from "@/components/boards/private-board-redirect";
 
 export default async function BoardDetailPage({
   params,
@@ -154,7 +155,7 @@ export default async function BoardDetailPage({
   }
 
   if (!canView) {
-    redirect("/boards");
+    return <PrivateBoardRedirect />;
   }
 
   // Check if current user follows/likes/saved this board

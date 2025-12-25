@@ -1,14 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function PinSkeleton() {
-  // Random height between 300-500px for masonry effect
-  const height = 300 + Math.floor(Math.random() * 200)
-
   return (
-    <div
-      className="break-inside-avoid mb-4 block"
-      style={{ height: `${height}px` }}
-    >
+    <div className="break-inside-avoid mb-4 block h-[500px]">
       <div className="relative h-full w-full overflow-hidden rounded-[18px] bg-card shadow-md">
         <Skeleton className="w-full h-full" />
       </div>

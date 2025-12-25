@@ -28,13 +28,13 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
     {
       icon: Users,
       label: "Followers",
-      value: stats.followers,
+      value: stats.following,
       color: "text-accent",
     },
     {
       icon: Heart,
       label: "Following",
-      value: stats.following,
+      value: stats.followers,
       color: "text-warning",
     },
   ]

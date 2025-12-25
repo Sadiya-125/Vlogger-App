@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Search,
@@ -33,29 +32,29 @@ interface Pin {
   images: { url: string }[];
 }
 
-interface BrowsePinsModalProps {
+interface TimelinePinSelectorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   boardId: string;
-  boardName: string;
+  dayId: string;
+  onPinAdded: () => void;
 }
 
-export function BrowsePinsModal({
+export function TimelinePinSelectorModal({
   open,
   onOpenChange,
   boardId,
-  boardName,
-}: BrowsePinsModalProps) {
-  const router = useRouter();
+  dayId,
+  onPinAdded,
+}: TimelinePinSelectorModalProps) {
   const [pins, setPins] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [addingPinId, setAddingPinId] = useState<string | null>(null);
-  const [addedPins, setAddedPins] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (open) {
-      fetchPins();
+      fetchBoardPins();
     }
   }, [open]);
 
@@ -63,26 +62,28 @@ export function BrowsePinsModal({
     if (open) {
       // Debounce search
       const timer = setTimeout(() => {
-        fetchPins();
+        fetchBoardPins();
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [searchQuery]);
 
-  const fetchPins = async () => {
+  const fetchBoardPins = async () => {
     setLoading(true);
     try {
+      // Fetch pins that are already in this board
       const params = new URLSearchParams();
+      params.append("boardId", boardId);
       if (searchQuery) {
         params.append("q", searchQuery);
       }
-      // Always fetch pins, even without search query
-      params.append("limit", "50");
 
-      const response = await fetch(`/api/pins?${params.toString()}`);
+      const response = await fetch(
+        `/api/boards/${boardId}/pins?${params.toString()}`
+      );
       if (response.ok) {
         const data = await response.json();
-        setPins(data.pins || data);
+        setPins(data);
       }
     } catch (error) {
       console.error("Failed to fetch pins:", error);
@@ -92,35 +93,32 @@ export function BrowsePinsModal({
     }
   };
 
-  const handleAddPin = async (pinId: string, pinTitle: string) => {
+  const handleAddPinToDay = async (pinId: string, pinTitle: string) => {
     setAddingPinId(pinId);
 
     try {
-      const response = await fetch(`/api/boards/${boardId}/pins`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pinId }),
-      });
+      const response = await fetch(
+        `/api/boards/${boardId}/timeline/days/${dayId}/pins`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pinId }),
+        }
+      );
 
       if (response.ok) {
-        toast.success(`"${pinTitle}" Added to Board!`);
-        setAddedPins((prev) => new Set(prev).add(pinId));
-        router.refresh();
-
-        // Keep checkmark for 1.5 seconds
-        setTimeout(() => {
-          setAddingPinId(null);
-        }, 1500);
+        toast.success(`"${pinTitle}" added to day!`);
+        onPinAdded();
+        onOpenChange(false);
       } else if (response.status === 409) {
-        toast.info("This Pin is Already in the Board");
-        setAddedPins((prev) => new Set(prev).add(pinId));
-        setAddingPinId(null);
+        toast.info("This pin is already in this day");
       } else {
-        throw new Error("Failed to Add Pin");
+        throw new Error("Failed to add pin");
       }
     } catch (error) {
-      console.error("Failed to Add Pin to Board:", error);
-      toast.error("Failed to Add Pin");
+      console.error("Failed to add pin to day:", error);
+      toast.error("Failed to add pin to day");
+    } finally {
       setAddingPinId(null);
     }
   };
@@ -129,9 +127,9 @@ export function BrowsePinsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-175 max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Add Pins to Board</DialogTitle>
+          <DialogTitle>Add Pin to Timeline Day</DialogTitle>
           <DialogDescription>
-            Search and Add Pins to "{boardName}"
+            Select a Pin from this Board to Add to Your Timeline
           </DialogDescription>
         </DialogHeader>
 
@@ -140,7 +138,7 @@ export function BrowsePinsModal({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search Destinations, Locations, Tags..."
+              placeholder="Search Pins in This Board..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -153,11 +151,10 @@ export function BrowsePinsModal({
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : pins.length > 0 ? (
-            <ScrollArea className="max-h-[60vh] rounded-md scroll-smooth overflow-y-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1">
+            <ScrollArea className="h-125 pr-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {pins.map((pin) => {
                   const isAdding = addingPinId === pin.id;
-                  const isAdded = addedPins.has(pin.id);
 
                   return (
                     <div
@@ -175,29 +172,24 @@ export function BrowsePinsModal({
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <MapPinIcon className="h-12 w-12 text-muted-foreground/30 shrink-0" />
+                            <MapPinIcon className="h-12 w-12 text-muted-foreground/30" />
                           </div>
                         )}
 
                         {/* Add Button Overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                           <Button
-                            onClick={() => handleAddPin(pin.id, pin.title)}
-                            disabled={isAdding || isAdded}
-                            className={cn(
-                              "opacity-0 group-hover:opacity-100 transition-opacity",
-                              isAdded &&
-                                "opacity-100 bg-green-500 hover:bg-green-600"
-                            )}
+                            onClick={() => handleAddPinToDay(pin.id, pin.title)}
+                            disabled={isAdding}
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             {isAdding ? (
                               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : isAdded ? (
-                              <Check className="h-4 w-4 mr-2" />
                             ) : (
                               <Plus className="h-4 w-4 mr-2" />
                             )}
-                            {isAdded ? "Added" : "Add to Board"}
+                            Add to Day
                           </Button>
                         </div>
                       </div>
@@ -208,7 +200,7 @@ export function BrowsePinsModal({
                           {pin.title}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                          <MapPinIcon className="h-3 w-3 shrink-0" />
+                          <MapPinIcon className="h-3 w-3" />
                           <span className="line-clamp-1">{pin.location}</span>
                         </div>
                         {pin.category && (
@@ -224,14 +216,14 @@ export function BrowsePinsModal({
             </ScrollArea>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <MapPinIcon className="h-12 w-12 text-muted-foreground/50 mb-4 shrink-0" />
+              <MapPinIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
               <h3 className="font-semibold mb-2">
-                {searchQuery ? "No pins found" : "No pins available"}
+                {searchQuery ? "No Pins Found" : "No Pins in This Board"}
               </h3>
               <p className="text-sm text-muted-foreground max-w-xs">
                 {searchQuery
-                  ? "Try a different search term to find pins"
-                  : "Create your first pin to add it to this board"}
+                  ? "Try a Different Search Term"
+                  : "Add Pins to This Board First to Add Them to Your Timeline"}
               </p>
             </div>
           )}

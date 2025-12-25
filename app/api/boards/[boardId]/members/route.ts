@@ -85,10 +85,28 @@ export async function POST(
       return new NextResponse('Forbidden', { status: 403 })
     }
 
-    // Find user to invite
-    const userToInvite = await prisma.user.findUnique({
+    // Find user to invite by username or full name
+    let userToInvite = await prisma.user.findUnique({
       where: { username },
     })
+
+    // If not found by username, try searching by full name
+    if (!userToInvite) {
+      const nameParts = username.trim().split(/\s+/);
+      if (nameParts.length >= 2) {
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' ');
+
+        userToInvite = await prisma.user.findFirst({
+          where: {
+            AND: [
+              { firstName: { equals: firstName, mode: 'insensitive' } },
+              { lastName: { equals: lastName, mode: 'insensitive' } },
+            ],
+          },
+        });
+      }
+    }
 
     if (!userToInvite) {
       return new NextResponse('User not found', { status: 404 })

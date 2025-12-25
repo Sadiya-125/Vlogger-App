@@ -482,7 +482,7 @@ export function BoardHero({
                     {board.members.slice(0, 5).map((member: any) => (
                       <div
                         key={member.id}
-                        className="relative h-8 w-8 rounded-full ring-2 ring-background overflow-hidden"
+                        className="relative h-10 w-10 rounded-full ring-2 ring-background overflow-hidden"
                         title={member.user.firstName || member.user.username}
                       >
                         {member.user.imageUrl ? (
@@ -502,8 +502,8 @@ export function BoardHero({
                       </div>
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    +{board.members.length} collaborators
+                  <span className="text-sm text-muted-foreground">
+                    +{board.members.length} Collaborators
                   </span>
                 </div>
               )}

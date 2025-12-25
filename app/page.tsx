@@ -134,8 +134,8 @@ export default async function Home() {
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Explore stunning destinations, create travel boards, and plan
-                unforgettable journeys with our global community of explorers.
+                Explore Stunning Destinations, Create Travel Boards, and Plan
+                Unforgettable Journeys with our Global Community of Explorers.
               </p>
             </div>
           </div>
@@ -150,7 +150,8 @@ export default async function Home() {
                 Discover Destinations
               </h2>
               <p className="text-base md:text-lg text-muted-foreground">
-                Explore Breathtaking Locations, Hidden Gems, and Travel Inspiration from Around the World
+                Explore Breathtaking Locations, Hidden Gems, and Travel
+                Inspiration from Around the World
               </p>
             </div>
 

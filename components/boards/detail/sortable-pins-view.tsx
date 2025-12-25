@@ -101,19 +101,19 @@ export function SortablePinsView({
     <div className="space-y-6">
       {/* View Controls */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          {canEdit && (
-            <Button variant="default" onClick={() => setShowBrowsePins(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Pins
-            </Button>
-          )}
+        {/* LEFT SECTION */}
+        <p className="text-sm text-muted-foreground">
+          {extractedPins.length}{" "}
+          {extractedPins.length === 1 ? "Destination" : "Destinations"}
+        </p>
 
-          <p className="text-sm text-muted-foreground">
-            {extractedPins.length}{" "}
-            {extractedPins.length === 1 ? "Destination" : "Destinations"}
-          </p>
-        </div>
+        {/* RIGHT SECTION */}
+        {canEdit && (
+          <Button variant="default" onClick={() => setShowBrowsePins(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Pins
+          </Button>
+        )}
       </div>
 
       {/* Map View */}
@@ -122,8 +122,8 @@ export function SortablePinsView({
           <Map className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2">Map View</h3>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Visualize all your destinations on an interactive map with routes
-            and clusters.
+            Visualize All Your Destinations on an Interactive Map with Routes
+            and Clusters.
           </p>
         </div>
       )}
@@ -166,9 +166,9 @@ export function SortablePinsView({
           <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
             <LayoutGrid className="h-10 w-10 text-muted-foreground/50" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">No pins yet</h3>
+          <h3 className="text-xl font-semibold mb-2">No Pins Yet</h3>
           <p className="text-muted-foreground max-w-sm mb-6">
-            Start building your travel board by adding amazing destinations.
+            Start Building Your Travel Board by Adding Amazing Destinations.
           </p>
           {canEdit && (
             <Button

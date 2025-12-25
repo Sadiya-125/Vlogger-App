@@ -11,7 +11,6 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -44,6 +43,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { TimelinePinSelectorModal } from "./timeline-pin-selector-modal";
 
 interface TimelineViewProps {
   board: any;
@@ -214,15 +214,9 @@ function DayColumn({
     <Card className="shrink-0 w-80 bg-muted/30">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-primary" />
-            <Badge variant="secondary" className="text-xs">
-              Day {day.dayNumber}
-            </Badge>
-          </div>
           {canEdit && day.pins.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {day.pins.length} {day.pins.length === 1 ? "stop" : "stops"}
+            <span className="text-sm text-muted-foreground">
+              {day.pins.length} {day.pins.length === 1 ? "Stop" : "Stops"}
             </span>
           )}
         </div>
@@ -248,10 +242,11 @@ function DayColumn({
           <CardTitle
             onClick={() => canEdit && setIsEditingTitle(true)}
             className={cn(
-              "text-base cursor-pointer hover:text-primary transition-colors",
+              "text-base cursor-pointer hover:text-primary transition-colors flex items-center gap-2",
               !canEdit && "cursor-default hover:text-foreground"
             )}
           >
+            <Calendar className="h-4 w-4 text-primary" />
             {day.title}
           </CardTitle>
         )}
@@ -262,16 +257,16 @@ function DayColumn({
               value={localNotes}
               onChange={(e) => setLocalNotes(e.target.value)}
               onBlur={handleSaveNotes}
-              placeholder="Add notes for this day..."
+              placeholder="Add Notes For This Day..."
               rows={2}
-              className="text-xs"
+              className="text-sm"
             />
           </div>
         ) : day.notes ? (
           <CardDescription
             onClick={() => canEdit && setIsEditingNotes(true)}
             className={cn(
-              "text-xs mt-1 cursor-pointer",
+              "text-sm mt-1 cursor-pointer",
               canEdit && "hover:text-foreground"
             )}
           >
@@ -281,9 +276,10 @@ function DayColumn({
           canEdit && (
             <button
               onClick={() => setIsEditingNotes(true)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-1"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-1 flex items-center gap-2"
             >
-              + Add notes
+              <Plus className="h-4 w-4 inline-block" />
+              Add Notes
             </button>
           )
         )}
@@ -306,7 +302,6 @@ function DayColumn({
         {canEdit && (
           <Button
             variant="outline"
-            size="sm"
             onClick={onAddPin}
             className="w-full border-dashed"
           >
@@ -328,6 +323,8 @@ function DayColumn({
 export function TimelineView({ board, canEdit }: TimelineViewProps) {
   const [days, setDays] = useState<DayColumn[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pinSelectorOpen, setPinSelectorOpen] = useState(false);
+  const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
 
   // Fetch timeline data
   useEffect(() => {
@@ -595,8 +592,8 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
           <div>
             <h3 className="text-xl font-semibold mb-2">Trip Timeline</h3>
             <p className="text-sm text-muted-foreground">
-              {totalDays} {totalDays === 1 ? "day" : "days"} · {totalPins}{" "}
-              {totalPins === 1 ? "destination" : "destinations"}
+              {totalDays} {totalDays === 1 ? "Day" : "Days"} · {totalPins}{" "}
+              {totalPins === 1 ? "Destination" : "Destinations"}
             </p>
           </div>
           {canEdit && (
@@ -621,8 +618,8 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
               day={day}
               canEdit={canEdit}
               onAddPin={() => {
-                // TODO: Implement pin selection modal
-                toast.info("Pin selection modal coming soon");
+                setSelectedDayId(day.id);
+                setPinSelectorOpen(true);
               }}
               onRemovePin={(pinId) => handleRemovePinFromDay(day.id, pinId)}
               onUpdateDay={(updates) => handleUpdateDay(day.id, updates)}
@@ -642,7 +639,7 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
             Start Planning Your Trip
           </h3>
           <p className="text-muted-foreground max-w-md mb-6">
-            Organize your destinations day by day for the perfect itinerary.
+            Organize your Destinations Day by Day for the Perfect Itinerary.
           </p>
           {canEdit && (
             <Button onClick={handleAddDay} className="gap-2">
@@ -651,6 +648,17 @@ export function TimelineView({ board, canEdit }: TimelineViewProps) {
             </Button>
           )}
         </div>
+      )}
+
+      {/* Pin Selector Modal */}
+      {selectedDayId && (
+        <TimelinePinSelectorModal
+          open={pinSelectorOpen}
+          onOpenChange={setPinSelectorOpen}
+          boardId={board.id}
+          dayId={selectedDayId}
+          onPinAdded={fetchTimeline}
+        />
       )}
     </div>
   );

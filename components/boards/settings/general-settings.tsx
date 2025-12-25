@@ -21,9 +21,17 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 const boardCategories = {
-  DREAM: { label: "Dream", emoji: "✨", description: "Aspirational destinations" },
-  PLANNING: { label: "Planning", emoji: "📋", description: "Currently planning" },
-  COMPLETED: { label: "Completed", emoji: "✅", description: "Visited places" },
+  DREAM: {
+    label: "Dream",
+    emoji: "✨",
+    description: "Aspirational Destinations",
+  },
+  PLANNING: {
+    label: "Planning",
+    emoji: "📋",
+    description: "Currently Planning",
+  },
+  COMPLETED: { label: "Completed", emoji: "✅", description: "Visited Places" },
 };
 
 const tripCategories = {
@@ -44,18 +52,20 @@ const generalSchema = z.object({
   subtitle: z.string().max(150).optional(),
   description: z.string().max(500).optional(),
   category: z.enum(["DREAM", "PLANNING", "COMPLETED"]),
-  tripCategory: z.enum([
-    "BACKPACKING",
-    "LUXURY",
-    "SOLO",
-    "GROUP",
-    "COUPLES",
-    "NATURE",
-    "CITY",
-    "FOOD",
-    "FESTIVALS",
-    "HIDDEN_GEMS",
-  ]).optional(),
+  tripCategory: z
+    .enum([
+      "BACKPACKING",
+      "LUXURY",
+      "SOLO",
+      "GROUP",
+      "COUPLES",
+      "NATURE",
+      "CITY",
+      "FOOD",
+      "FESTIVALS",
+      "HIDDEN_GEMS",
+    ])
+    .optional(),
 });
 
 type GeneralFormData = z.infer<typeof generalSchema>;
@@ -166,12 +176,12 @@ export function GeneralSettings({ board }: GeneralSettingsProps) {
           <Label htmlFor="description">Description</Label>
           <Textarea
             id="description"
-            placeholder="This board is a collection of must-visit destinations across Europe..."
+            placeholder="This Board is a Collection of Must-Visit Destinations Across Europe..."
             rows={4}
             {...form.register("description")}
           />
           <p className="text-xs text-muted-foreground">
-            Tell others what this board is about
+            Tell Others What this Board is About
           </p>
         </div>
 

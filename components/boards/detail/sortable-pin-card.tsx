@@ -5,7 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Star, HelpCircle, RotateCcw, Edit2, Save } from "lucide-react";
+import {
+  GripVertical,
+  Star,
+  HelpCircle,
+  RotateCcw,
+  Edit2,
+  Save,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -82,10 +89,10 @@ export function SortablePinCard({
         body: JSON.stringify({ boardNotes }),
       });
 
-      toast.success("Notes saved!");
+      toast.success("Notes Saved!");
       setIsEditingNotes(false);
     } catch (error) {
-      toast.error("Failed to save notes");
+      toast.error("Failed to Save Notes");
     }
   };
 
@@ -99,15 +106,19 @@ export function SortablePinCard({
         body: JSON.stringify({ relevance: newRelevance }),
       });
 
-      toast.success("Relevance updated!");
+      toast.success("Relevance Updated!");
     } catch (error) {
-      toast.error("Failed to update relevance");
+      toast.error("Failed to Update Relevance");
       setRelevance(pin.relevance);
     }
   };
 
-  const RelevanceIcon = relevance ? relevanceConfig[relevance as keyof typeof relevanceConfig]?.icon : null;
-  const relevanceData = relevance ? relevanceConfig[relevance as keyof typeof relevanceConfig] : null;
+  const RelevanceIcon = relevance
+    ? relevanceConfig[relevance as keyof typeof relevanceConfig]?.icon
+    : null;
+  const relevanceData = relevance
+    ? relevanceConfig[relevance as keyof typeof relevanceConfig]
+    : null;
 
   return (
     <div ref={setNodeRef} style={style} className="group relative">
@@ -122,10 +133,12 @@ export function SortablePinCard({
         </div>
       )}
 
-      <div className={cn(
-        "bg-card rounded-xl border border-border/40 overflow-hidden hover:shadow-lg transition-all duration-300",
-        isReordering && "cursor-move"
-      )}>
+      <div
+        className={cn(
+          "bg-card rounded-xl border border-border/40 overflow-hidden hover:shadow-lg transition-all duration-300",
+          isReordering && "cursor-move"
+        )}
+      >
         {/* Pin Image */}
         <Link href={`/pins/${pin.id}`} className="block relative h-56">
           {pin.images && pin.images[0] ? (
@@ -136,17 +149,19 @@ export function SortablePinCard({
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50" />
+            <div className="w-full h-full bg-linear-to-br from-muted to-muted/50" />
           )}
 
-          {/* Relevance Badge */}
           {relevance && relevanceData && (
-            <div className={cn(
-              "absolute top-3 left-3 px-3 py-1.5 rounded-full backdrop-blur-sm border",
-              relevanceData.bg,
-              "border-white/20"
-            )}>
-              <span className={cn("text-sm font-semibold flex items-center gap-1.5", relevanceData.color)}>
+            <div
+              className={cn(
+                "absolute top-3 left-3 px-3 py-1.5 rounded-full border z-20",
+                "backdrop-blur-md bg-black/55 shadow-lg", // readable glass
+                "border-white/25",
+                relevanceData.bg
+              )}
+            >
+              <span className="text-sm font-semibold flex items-center gap-1.5 text-black">
                 <span>{relevanceData.emoji}</span>
                 {relevanceData.label}
               </span>
@@ -173,8 +188,13 @@ export function SortablePinCard({
             <div className="space-y-3 pt-2 border-t border-border/40">
               {/* Relevance Selector */}
               <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Relevance</label>
-                <Select value={relevance || "none"} onValueChange={handleRelevanceChange}>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Relevance
+                </label>
+                <Select
+                  value={relevance || "none"}
+                  onValueChange={handleRelevanceChange}
+                >
                   <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Set relevance..." />
                   </SelectTrigger>
@@ -190,11 +210,12 @@ export function SortablePinCard({
               {/* Board Notes */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-muted-foreground">Board Notes</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Board Notes
+                  </label>
                   {!isEditingNotes && boardNotes && (
                     <Button
                       variant="ghost"
-                      size="sm"
                       className="h-6 px-2"
                       onClick={() => setIsEditingNotes(true)}
                     >
@@ -208,21 +229,16 @@ export function SortablePinCard({
                     <Textarea
                       value={boardNotes}
                       onChange={(e) => setBoardNotes(e.target.value)}
-                      placeholder="e.g., Visit at sunrise, Book tickets early..."
+                      placeholder="e.g., Visit at Sunrise, Book Tickets Early..."
                       rows={3}
                       className="text-sm"
                     />
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={handleSaveNotes}
-                        className="flex-1"
-                      >
+                      <Button onClick={handleSaveNotes} className="flex-1">
                         <Save className="h-3 w-3 mr-1" />
                         Save
                       </Button>
                       <Button
-                        size="sm"
                         variant="outline"
                         onClick={() => {
                           setBoardNotes(pin.boardNotes || "");
@@ -234,14 +250,14 @@ export function SortablePinCard({
                     </div>
                   </div>
                 ) : boardNotes ? (
-                  <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
+                  <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-md">
                     {boardNotes}
                   </p>
                 ) : (
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs h-8"
+                    className="w-full text-sm h-8"
                     onClick={() => setIsEditingNotes(true)}
                   >
                     Add Note

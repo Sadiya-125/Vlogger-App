@@ -385,14 +385,14 @@ export function DiscussionView({
         const comment = await response.json();
         setNewComment("");
         setReplyingTo(null);
-        toast.success("Comment posted! ✨");
+        toast.success("Comment Posted!");
         fetchComments(); // Refresh comments
       } else {
-        throw new Error("Failed to post comment");
+        throw new Error("Failed to Post Comment");
       }
     } catch (error) {
-      console.error("Failed to post comment:", error);
-      toast.error("Failed to post comment");
+      console.error("Failed to Post Comment:", error);
+      toast.error("Failed to Post Comment");
     } finally {
       setIsSubmitting(false);
     }
@@ -413,14 +413,14 @@ export function DiscussionView({
       );
 
       if (response.ok) {
-        toast.success("Comment updated!");
+        toast.success("Comment Updated!");
         fetchComments(); // Refresh to show updated pin status
       } else {
-        throw new Error("Failed to pin/unpin comment");
+        throw new Error("Failed to Pin/Unpin Comment");
       }
     } catch (error) {
-      console.error("Failed to pin/unpin comment:", error);
-      toast.error("Failed to update comment");
+      console.error("Failed to Pin/Unpin Comment:", error);
+      toast.error("Failed to Update Comment");
     }
   };
 
@@ -475,11 +475,10 @@ export function DiscussionView({
                 rows={3}
                 className="resize-none"
               />
-              <div className="flex justify-end mt-2">
+              <div className="flex justify-end mt-4">
                 <Button
                   type="submit"
                   disabled={isSubmitting || !newComment.trim()}
-                  size="sm"
                   className="gap-2"
                 >
                   {isSubmitting ? (

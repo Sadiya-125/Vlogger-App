@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Plus, Bookmark } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { BoardCard } from "./board-card"
-import { EnhancedCreateBoardModal } from "./enhanced-create-board-modal"
+import { useState } from "react";
+import { Plus, Bookmark } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BoardCard } from "./board-card";
+import { EnhancedCreateBoardModal } from "./enhanced-create-board-modal";
 
 interface Board {
-  id: string
-  name: string
-  description: string | null
-  category: string
-  visibility: string
-  coverImage: string | null
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  visibility: string;
+  coverImage: string | null;
   _count: {
-    pins: number
-    followers: number
-    likes: number
-  }
+    pins: number;
+    followers: number;
+    likes: number;
+  };
   pins: {
     pin: {
-      images: { url: string }[]
-    }
-  }[]
+      images: { url: string }[];
+    };
+  }[];
 }
 
 interface BoardsManagerProps {
-  boards: Board[]
+  boards: Board[];
 }
 
 export function BoardsManager({ boards: initialBoards }: BoardsManagerProps) {
-  const [boards, setBoards] = useState(initialBoards)
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [boards, setBoards] = useState(initialBoards);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleBoardCreated = (newBoard: Board) => {
-    setBoards([newBoard, ...boards])
-  }
+    setBoards([newBoard, ...boards]);
+  };
 
   const handleBoardDeleted = (boardId: string) => {
-    setBoards(boards.filter((b) => b.id !== boardId))
-  }
+    setBoards(boards.filter((b) => b.id !== boardId));
+  };
 
   const handleBoardUpdated = (updatedBoard: Board) => {
-    setBoards(boards.map((b) => (b.id === updatedBoard.id ? updatedBoard : b)))
-  }
+    setBoards(boards.map((b) => (b.id === updatedBoard.id ? updatedBoard : b)));
+  };
 
   return (
     <>
@@ -52,7 +52,7 @@ export function BoardsManager({ boards: initialBoards }: BoardsManagerProps) {
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-2">My Boards</h1>
           <p className="text-muted-foreground">
-            Organize your travel destinations into collections
+            Organize Your Travel Destinations into Collections
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} size="lg">
@@ -78,10 +78,10 @@ export function BoardsManager({ boards: initialBoards }: BoardsManagerProps) {
           <div className="h-32 w-32 rounded-full bg-muted flex items-center justify-center mb-6">
             <Bookmark className="h-16 w-16 text-muted-foreground/50" />
           </div>
-          <h3 className="text-2xl font-semibold mb-3">No boards yet</h3>
+          <h3 className="text-2xl font-semibold mb-3">No Boards Yet</h3>
           <p className="text-muted-foreground max-w-md mb-6">
-            Create your first board to start organizing your travel destinations
-            into meaningful collections like Dream Trips, Weekend Getaways, or
+            Create Your First Board to Start Organizing Your Travel Destinations
+            into Meaningful Collections like Dream Trips, Weekend Getaways, or
             Bucket List Adventures.
           </p>
           <Button onClick={() => setShowCreateModal(true)} size="lg">
@@ -97,5 +97,5 @@ export function BoardsManager({ boards: initialBoards }: BoardsManagerProps) {
         onBoardCreated={handleBoardCreated}
       />
     </>
-  )
+  );
 }
